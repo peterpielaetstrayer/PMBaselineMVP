@@ -147,6 +147,24 @@ export function HomeScreen({ appState, navigateToScreen }: HomeScreenProps) {
                 </div>
               </div>
 
+              {/* Feeling Summary */}
+              <div className="border-t border-gray-200 pt-4">
+                <p className="text-sm text-navy-text/70 mb-2">Today's feeling:</p>
+                <div className="bg-gradient-to-r from-ocean-light/10 to-sun-accent/10 rounded-lg p-3">
+                  <p className="text-sm text-navy-text font-medium">
+                    {todayCheckin.physical_score >= 4 && todayCheckin.mental_score >= 4
+                      ? "🌟 High energy & clear mind - you're flowing beautifully!"
+                      : todayCheckin.physical_score >= 4
+                      ? "💪 Strong physical energy - your body is ready for action"
+                      : todayCheckin.mental_score >= 4
+                      ? "🧠 Sharp mental clarity - your mind is focused and clear"
+                      : todayCheckin.physical_score >= 3 && todayCheckin.mental_score >= 3
+                      ? "✨ Steady baseline - maintaining good balance today"
+                      : "🌱 Gentle energy - honoring your current state with kindness"}
+                  </p>
+                </div>
+              </div>
+
               {todayCheckin.notes && (
                 <div className="border-t border-gray-200 pt-4">
                   <p className="text-sm text-navy-text/70 mb-1">Today's reflection:</p>

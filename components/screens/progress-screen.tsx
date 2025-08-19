@@ -117,7 +117,8 @@ export function ProgressScreen({ appState, navigateToScreen }: ProgressScreenPro
   const [currentMonth, setCurrentMonth] = useState(new Date())
 
   const checkins = appState.checkins || []
-  const currentStreak = storage.calculateStreak()
+  const streakInfo = storage.getStreakInfo()
+  const currentStreak = streakInfo.currentStreak
 
   const getCheckinForDate = (date: Date): CheckIn | undefined => {
     const dateStr = dateUtils.format(date, "yyyy-MM-dd")
@@ -467,6 +468,27 @@ export function ProgressScreen({ appState, navigateToScreen }: ProgressScreenPro
                     ? "Riding the wave"
                     : "Certified readiness achieved!"}
           </p>
+          
+          {/* Grace Period Info */}
+          {streakInfo.gracePeriodUsed > 0 && (
+            <div className="mt-3 p-3 bg-ocean-light/20 rounded-lg">
+              <p className="text-sm text-ocean-deep font-medium">
+                💙 Grace period used: {streakInfo.gracePeriodUsed}/{streakInfo.maxGraceDays} days
+              </p>
+              <p className="text-xs text-navy-text/60 mt-1">
+                Your streak continues thanks to gentle flexibility
+              </p>
+            </div>
+          )}
+          
+          {/* Recovery Message */}
+          {streakInfo.gracePeriodUsed > 0 && streakInfo.gracePeriodUsed < streakInfo.maxGraceDays && (
+            <div className="mt-2 p-2 bg-success-green/20 rounded-lg">
+              <p className="text-sm text-success-green font-medium">
+                Welcome back! Your journey continues
+              </p>
+            </div>
+          )}
         </Card>
 
         {/* View Content */}

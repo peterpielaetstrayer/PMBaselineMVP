@@ -5,6 +5,7 @@ const STORAGE_KEYS = {
   CHECKINS: "pmbaseline_checkins",
   MILESTONE: "pmbaseline_milestone",
   APP_STATE: "pmbaseline_app_state",
+  PARTIAL_CHECKIN: "pmbaseline_partial_checkin",
 } as const
 
 export const storage = {
@@ -73,6 +74,8 @@ export const storage = {
 
     let streak = 0
     const today = new Date()
+    let gracePeriodUsed = 0
+    const MAX_GRACE_DAYS = 2
 
     for (let i = 0; i < sortedCheckins.length; i++) {
       const checkinDate = new Date(sortedCheckins[i].date)
@@ -83,17 +86,94 @@ export const storage = {
       if (checkinDate.toDateString() === expectedDate.toDateString()) {
         streak++
       } else {
-        break
+        // Check if we can use grace period
+        const daysDiff = Math.abs((checkinDate.getTime() - expectedDate.getTime()) / (1000 * 60 * 60 * 24))
+        if (daysDiff <= MAX_GRACE_DAYS && gracePeriodUsed < MAX_GRACE_DAYS) {
+          gracePeriodUsed++
+          streak++
+        } else {
+          break
+        }
       }
     }
 
     return streak
   },
 
+  // Get streak info with grace period details
+  getStreakInfo: (): { currentStreak: number; gracePeriodUsed: number; maxGraceDays: number } => {
+    const checkins = storage.getCheckins()
+    if (checkins.length === 0) return { currentStreak: 0, gracePeriodUsed: 0, maxGraceDays: 2 }
+
+    const sortedCheckins = checkins.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    let streak = 0
+    const today = new Date()
+    let gracePeriodUsed = 0
+    const MAX_GRACE_DAYS = 2
+
+    for (let i = 0; i < sortedCheckins.length; i++) {
+      const checkinDate = new Date(sortedCheckins[i].date)
+      const expectedDate = new Date(today)
+      expectedDate.setDate(today.getDate() - i)
+
+      if (checkinDate.toDateString() === expectedDate.toDateString()) {
+        streak++
+      } else {
+        const daysDiff = Math.abs((checkinDate.getTime() - expectedDate.getTime()) / (1000 * 60 * 60 * 24))
+        if (daysDiff <= MAX_GRACE_DAYS && gracePeriodUsed < MAX_GRACE_DAYS) {
+          gracePeriodUsed++
+          streak++
+        } else {
+          break
+        }
+      }
+    }
+
+    return { currentStreak: streak, gracePeriodUsed, maxGraceDays: MAX_GRACE_DAYS }
+  },
+
   hasAchievedMilestone: (): boolean => {
     const streak = storage.calculateStreak()
     const milestone = storage.getMilestone()
     return streak >= 50 || milestone?.fifty_day_achieved !== undefined
+  },
+
+  // Partial check-in management
+  savePartialCheckin: (partial: {
+    physical_score: number
+    mental_score: number
+    minimums_met: string[]
+    notes: string
+    timestamp: number
+  }): void => {
+    if (typeof window === "undefined") return
+    localStorage.setItem(STORAGE_KEYS.PARTIAL_CHECKIN, JSON.stringify(partial))
+  },
+
+  getPartialCheckin: (): {
+    physical_score: number
+    mental_score: number
+    minimumsMet: string[]
+    notes: string
+    timestamp: number
+  } | null => {
+    if (typeof window === "undefined") return null
+    const stored = localStorage.getItem(STORAGE_KEYS.PARTIAL_CHECKIN)
+    if (!stored) return null
+    
+    const partial = JSON.parse(stored)
+    // Only return if partial is from today (within 24 hours)
+    if (Date.now() - partial.timestamp > 24 * 60 * 60 * 1000) {
+      storage.clearPartialCheckin()
+      return null
+    }
+    
+    return partial
+  },
+
+  clearPartialCheckin: (): void => {
+    if (typeof window === "undefined") return
+    localStorage.removeItem(STORAGE_KEYS.PARTIAL_CHECKIN)
   },
 
   clearAll: (): void => {

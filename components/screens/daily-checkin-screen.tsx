@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
@@ -21,6 +21,35 @@ export function DailyCheckinScreen({ appState, updateAppState, navigateToScreen 
   const [mentalScore, setMentalScore] = useState(3)
   const [minimumsMet, setMinimumsMet] = useState<string[]>([])
   const [notes, setNotes] = useState("")
+  
+  // Load partial check-in if exists
+  useEffect(() => {
+    const partial = storage.getPartialCheckin()
+    if (partial) {
+      setPhysicalScore(partial.physical_score)
+      setMentalScore(partial.mental_score)
+      setMinimumsMet(partial.minimumsMet)
+      setNotes(partial.notes || "")
+      setStep("checkin")
+    }
+  }, [])
+  
+  // Auto-save partial check-in every 30 seconds
+  useEffect(() => {
+    if (step === "checkin") {
+      const interval = setInterval(() => {
+        storage.savePartialCheckin({
+          physical_score: physicalScore,
+          mental_score: mentalScore,
+          minimums_met: minimumsMet,
+          notes: notes,
+          timestamp: Date.now()
+        })
+      }, 30000)
+      
+      return () => clearInterval(interval)
+    }
+  }, [step, physicalScore, mentalScore, minimumsMet, notes])
 
   const currentStreak = storage.calculateStreak()
   const user = appState.user!
@@ -33,14 +62,48 @@ export function DailyCheckinScreen({ appState, updateAppState, navigateToScreen 
   }
 
   const getMotivationalMessage = () => {
-    const messages = [
-      "Ready to ride today's wave?",
-      "How's your baseline feeling?",
-      "Time to check in with yourself",
-      "Let's see how you're flowing today",
-      "Your daily alignment awaits",
-    ]
-    return messages[Math.floor(Math.random() * messages.length)]
+    // Context-aware messages based on streak
+    if (currentStreak === 0) {
+      const messages = [
+        "Ready to start your journey?",
+        "Every expert was once a beginner",
+        "Your first step creates momentum",
+        "Let's build something beautiful together",
+      ]
+      return messages[Math.floor(Math.random() * messages.length)]
+    } else if (currentStreak < 7) {
+      const messages = [
+        "Building momentum, day by day",
+        "You're finding your rhythm",
+        "Consistency is your superpower",
+        "Every day builds your foundation",
+      ]
+      return messages[Math.floor(Math.random() * messages.length)]
+    } else if (currentStreak < 21) {
+      const messages = [
+        "You're riding the wave of habit",
+        "Your consistency is inspiring",
+        "Finding your flow state",
+        "Building unshakeable momentum",
+      ]
+      return messages[Math.floor(Math.random() * messages.length)]
+    } else if (currentStreak < 50) {
+      const messages = [
+        "You're a habit master in training",
+        "Your dedication is remarkable",
+        "Riding the wave of excellence",
+        "Building something extraordinary",
+      ]
+      return messages[Math.floor(Math.random() * messages.length)]
+    } else {
+      const messages = [
+        "Certified readiness achieved! 🎉",
+        "You're living the baseline life",
+        "Master of your own rhythm",
+        "Inspiring others with your consistency",
+      ]
+      return messages[Math.floor(Math.random() * messages.length)]
+    }
   }
 
   const handleMinimumToggle = (minimumId: string) => {
@@ -61,6 +124,7 @@ export function DailyCheckinScreen({ appState, updateAppState, navigateToScreen 
     }
 
     storage.addCheckin(checkin)
+    storage.clearPartialCheckin() // Clear partial check-in
 
     // Update user streak
     const newStreak = storage.calculateStreak()
@@ -217,14 +281,14 @@ export function DailyCheckinScreen({ appState, updateAppState, navigateToScreen 
                     key={minimum.id}
                     className={`flex items-center space-x-3 p-3 rounded-lg border gentle-transition cursor-pointer ${
                       minimumsMet.includes(minimum.id)
-                        ? "border-success-green bg-success-green/10"
-                        : "border-gray-200 hover:border-gray-300"
+                        ? "border-success-green bg-success-green/10 shadow-sm"
+                        : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
                     }`}
                     onClick={() => handleMinimumToggle(minimum.id)}
                   >
                     <div
-                      className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                        minimumsMet.includes(minimum.id) ? "border-success-green bg-success-green" : "border-gray-300"
+                      className={`w-5 h-5 rounded border-2 flex items-center justify-center gentle-transition ${
+                        minimumsMet.includes(minimum.id) ? "border-success-green bg-success-green scale-110" : "border-gray-300"
                       }`}
                     >
                       {minimumsMet.includes(minimum.id) && (
@@ -234,11 +298,35 @@ export function DailyCheckinScreen({ appState, updateAppState, navigateToScreen 
                       )}
                     </div>
                     <span className="text-lg">{minimum.icon}</span>
-                    <span className="text-navy-text">{minimum.label}</span>
+                    <span className={`text-navy-text ${minimumsMet.includes(minimum.id) ? "font-medium" : ""}`}>
+                      {minimum.label}
+                    </span>
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-navy-text/60 mt-2">1 push-up counts! Every small step matters.</p>
+              
+              {/* Progress indicator */}
+              <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-navy-text/70">Progress</span>
+                  <span className="text-sm font-medium text-navy-text">
+                    {minimumsMet.length}/{userMinimums.length}
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-gradient-to-r from-success-green to-success-green/80 h-2 rounded-full gentle-transition"
+                    style={{ width: `${(minimumsMet.length / userMinimums.length) * 100}%` }}
+                  ></div>
+                </div>
+                <p className="text-xs text-navy-text/60 mt-2">
+                  {minimumsMet.length === 0
+                    ? "Start with one - every small step matters!"
+                    : minimumsMet.length === userMinimums.length
+                    ? "All minimums completed! 🎉"
+                    : `${userMinimums.length - minimumsMet.length} more to go`}
+                </p>
+              </div>
             </div>
 
             {/* Optional Notes */}
