@@ -32,6 +32,20 @@ export default function PMBaselineApp() {
       try {
         console.log('Initializing app...')
         
+        // In development, use a simpler approach to avoid hanging
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Development mode - using simple initialization')
+          setAppState({
+            currentScreen: "welcome",
+            user: null,
+            todayCheckin: null,
+            checkins: [],
+            milestone: null,
+          })
+          setIsLoading(false)
+          return
+        }
+        
         // Add timeout to prevent infinite loading
         const timeoutPromise = new Promise((_, reject) => {
           setTimeout(() => reject(new Error('Initialization timeout')), 10000)
@@ -151,12 +165,56 @@ export default function PMBaselineApp() {
     window.location.reload()
   }
 
+  // Force load after 15 seconds to prevent infinite loading
+  useEffect(() => {
+    const forceLoadTimer = setTimeout(() => {
+      if (isLoading) {
+        console.log('Force loading app after timeout...')
+        setIsLoading(false)
+        setAppState({
+          currentScreen: "welcome",
+          user: null,
+          todayCheckin: null,
+          checkins: [],
+          milestone: null,
+        })
+      }
+    }, 15000)
+
+    return () => clearTimeout(forceLoadTimer)
+  }, [isLoading])
+
   if (authLoading || isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-ocean-light/20 to-ocean-deep/10 flex items-center justify-center">
         <div className="text-center fade-in">
           <div className="wave-spinner mx-auto mb-6"></div>
-          <p className="text-navy-text/60 floating-animation">Loading your baseline...</p>
+          <p className="text-navy-text/60 floating-animation">
+            Loading your baseline... {isLoading && authLoading ? '(Auth + App)' : authLoading ? '(Auth)' : '(App)'}
+          </p>
+          <p className="text-xs text-navy-text/40 mt-2">
+            If this takes too long, try refreshing the page
+          </p>
+          
+          {/* Debug button for development */}
+          {process.env.NODE_ENV === 'development' && (
+            <button
+              onClick={() => {
+                console.log('Force loading app...')
+                setIsLoading(false)
+                setAppState({
+                  currentScreen: "welcome",
+                  user: null,
+                  todayCheckin: null,
+                  checkins: [],
+                  milestone: null,
+                })
+              }}
+              className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
+            >
+              Force Load App (Debug)
+            </button>
+          )}
         </div>
       </div>
     )
