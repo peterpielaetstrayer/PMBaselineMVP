@@ -9,35 +9,61 @@ export class HybridStorage {
   constructor() {
     // Only check auth status on client side
     if (typeof window !== 'undefined') {
-      this.checkAuthStatus()
+      // Add a small delay to ensure Supabase is ready
+      setTimeout(() => {
+        this.checkAuthStatus()
+      }, 100)
     }
   }
 
   private async checkAuthStatus() {
-    if (!supabase) return
+    console.log('Checking auth status...')
+    if (!supabase) {
+      console.log('No Supabase client available')
+      return
+    }
     
-    const { data: { session } } = await supabase.auth.getSession()
-    this.isAuthenticated = !!session
-    this.currentUserId = session?.user?.id || null
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession()
+      if (error) {
+        console.error('Error getting session:', error)
+        return
+      }
+      
+      this.isAuthenticated = !!session
+      this.currentUserId = session?.user?.id || null
+      console.log('Auth status:', { isAuthenticated: this.isAuthenticated, userId: this.currentUserId })
+    } catch (error) {
+      console.error('Failed to check auth status:', error)
+    }
   }
 
   // User Management
   async getUser(): Promise<User | null> {
+    console.log('getUser called:', { isAuthenticated: this.isAuthenticated, currentUserId: this.currentUserId })
+    
     if (this.isAuthenticated && this.currentUserId) {
       try {
+        console.log('Attempting to get user from Supabase...')
         const { data, error } = await supabase
           .from(TABLES.USERS)
           .select('*')
           .eq('id', this.currentUserId)
           .single()
 
-        if (error) throw error
+        if (error) {
+          console.error('Supabase error:', error)
+          throw error
+        }
+        
+        console.log('User data from Supabase:', data)
         return this.mapDbUserToUser(data)
       } catch (error) {
         console.warn('Failed to get user from Supabase, falling back to localStorage:', error)
       }
     }
     
+    console.log('Falling back to localStorage...')
     // Fallback to localStorage
     return localStorage.getUser()
   }

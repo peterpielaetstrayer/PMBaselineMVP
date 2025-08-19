@@ -30,36 +30,91 @@ export default function PMBaselineApp() {
       if (authLoading) return
 
       try {
-        // Use hybrid storage (Supabase + localStorage fallback)
-        const user = await hybridStorage.getUser()
-        const checkins = await hybridStorage.getCheckins()
-        const todayCheckin = await hybridStorage.getTodayCheckin()
-        const milestone = await hybridStorage.getMilestone()
-
-        // Determine initial screen based on user state
-        let initialScreen: AppScreen = "welcome"
-
-        if (user) {
-          if (user.selected_minimums.length === 0) {
-            initialScreen = "baseline-setup"
-          } else if (!user.reminder_time) {
-            initialScreen = "reminder-setup"
-          } else if (!todayCheckin) {
-            initialScreen = "daily-checkin"
-          } else {
-            initialScreen = "home"
-          }
-        }
-
-        setAppState({
-          currentScreen: initialScreen,
-          user,
-          todayCheckin,
-          checkins,
-          milestone,
+        console.log('Initializing app...')
+        
+        // Add timeout to prevent infinite loading
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Initialization timeout')), 10000)
         })
+        
+        const initPromise = (async () => {
+          // Use hybrid storage (Supabase + localStorage fallback)
+          console.log('Getting user...')
+          let user
+          try {
+            user = await hybridStorage.getUser()
+          } catch (error) {
+            console.error('Failed to get user, using fallback:', error)
+            user = null
+          }
+          console.log('User loaded:', user ? 'yes' : 'no')
+          
+          console.log('Getting checkins...')
+          let checkins
+          try {
+            checkins = await hybridStorage.getCheckins()
+          } catch (error) {
+            console.error('Failed to get checkins, using fallback:', error)
+            checkins = []
+          }
+          console.log('Checkins loaded:', checkins.length)
+          
+          console.log('Getting today checkin...')
+          let todayCheckin
+          try {
+            todayCheckin = await hybridStorage.getTodayCheckin()
+          } catch (error) {
+            console.error('Failed to get today checkin, using fallback:', error)
+            todayCheckin = null
+          }
+          console.log('Today checkin loaded:', todayCheckin ? 'yes' : 'no')
+          
+          console.log('Getting milestone...')
+          let milestone
+          try {
+            milestone = await hybridStorage.getMilestone()
+          } catch (error) {
+            console.error('Failed to get milestone, using fallback:', error)
+            milestone = null
+          }
+          console.log('Milestone loaded:', milestone ? 'yes' : 'no')
+
+          // Determine initial screen based on user state
+          let initialScreen: AppScreen = "welcome"
+
+          if (user) {
+            if (user.selected_minimums.length === 0) {
+              initialScreen = "baseline-setup"
+            } else if (!user.reminder_time) {
+              initialScreen = "reminder-setup"
+            } else if (!todayCheckin) {
+              initialScreen = "daily-checkin"
+            } else {
+              initialScreen = "home"
+            }
+          }
+
+          console.log('Setting initial screen:', initialScreen)
+          setAppState({
+            currentScreen: initialScreen,
+            user,
+            todayCheckin,
+            checkins,
+            milestone,
+          })
+        })()
+        
+        await Promise.race([initPromise, timeoutPromise])
       } catch (error) {
         console.error('Failed to initialize app:', error)
+        // Set a default state to prevent infinite loading
+        setAppState({
+          currentScreen: "welcome",
+          user: null,
+          todayCheckin: null,
+          checkins: [],
+          milestone: null,
+        })
       } finally {
         setIsLoading(false)
       }

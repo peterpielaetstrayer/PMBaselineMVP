@@ -7,8 +7,21 @@ if (typeof window !== 'undefined') {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   
+  console.log('Supabase config:', { 
+    hasUrl: !!supabaseUrl, 
+    hasKey: !!supabaseAnonKey,
+    url: supabaseUrl ? `${supabaseUrl.substring(0, 20)}...` : 'none'
+  })
+  
   if (supabaseUrl && supabaseAnonKey) {
-    supabase = createClient(supabaseUrl, supabaseAnonKey)
+    try {
+      supabase = createClient(supabaseUrl, supabaseAnonKey)
+      console.log('Supabase client created successfully')
+    } catch (error) {
+      console.error('Failed to create Supabase client:', error)
+    }
+  } else {
+    console.log('Supabase environment variables not configured, using localStorage only')
   }
 }
 
