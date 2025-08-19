@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import type { AppState, AppScreen } from "@/lib/types"
+import type { AppState, AppScreen, User, CheckIn, Milestone } from "@/lib/types"
 import { hybridStorage } from "@/lib/hybrid-storage"
 import { useAuth } from "@/contexts/auth-context"
 import { WelcomeScreen } from "@/components/screens/welcome-screen"
@@ -40,7 +40,7 @@ export default function PMBaselineApp() {
         const initPromise = (async () => {
           // Use hybrid storage (Supabase + localStorage fallback)
           console.log('Getting user...')
-          let user
+          let user: User | null = null
           try {
             user = await hybridStorage.getUser()
           } catch (error) {
@@ -50,7 +50,7 @@ export default function PMBaselineApp() {
           console.log('User loaded:', user ? 'yes' : 'no')
           
           console.log('Getting checkins...')
-          let checkins
+          let checkins: CheckIn[] = []
           try {
             checkins = await hybridStorage.getCheckins()
           } catch (error) {
@@ -60,7 +60,7 @@ export default function PMBaselineApp() {
           console.log('Checkins loaded:', checkins.length)
           
           console.log('Getting today checkin...')
-          let todayCheckin
+          let todayCheckin: CheckIn | null = null
           try {
             todayCheckin = await hybridStorage.getTodayCheckin()
           } catch (error) {
@@ -70,7 +70,7 @@ export default function PMBaselineApp() {
           console.log('Today checkin loaded:', todayCheckin ? 'yes' : 'no')
           
           console.log('Getting milestone...')
-          let milestone
+          let milestone: Milestone | null = null
           try {
             milestone = await hybridStorage.getMilestone()
           } catch (error) {
