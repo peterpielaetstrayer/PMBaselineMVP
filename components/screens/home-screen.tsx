@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card"
 import type { AppState, AppScreen } from "@/lib/types"
 import { PHYSICAL_MINIMUMS, MENTAL_MINIMUMS } from "@/lib/types"
 import { storage } from "@/lib/storage"
+import { reminderService } from "@/lib/reminder-service"
 
 interface HomeScreenProps {
   appState: AppState
@@ -205,6 +206,23 @@ export function HomeScreen({ appState, navigateToScreen }: HomeScreenProps) {
             >
               View Progress History
             </Button>
+
+            {/* Test Reminder Button */}
+            {appState.user?.reminder_time && (
+              <Button
+                onClick={async () => {
+                  try {
+                    await reminderService.testReminder()
+                  } catch (error) {
+                    console.error('Failed to test reminder:', error)
+                  }
+                }}
+                variant="outline"
+                className="w-full border-sun-accent text-sun-accent hover:bg-sun-accent/10"
+              >
+                Test Reminder
+              </Button>
+            )}
 
             {currentStreak >= 50 && (
               <Button

@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import type { AppState, AppScreen } from "@/lib/types"
 import { storage } from "@/lib/storage"
+import { reminderService } from "@/lib/reminder-service"
 
 interface ReminderSetupScreenProps {
   appState: AppState
@@ -20,17 +21,36 @@ export function ReminderSetupScreen({ appState, updateAppState, navigateToScreen
   const [enableEvening, setEnableEvening] = useState(false)
   const [eveningTime, setEveningTime] = useState("20:00")
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (!appState.user) return
 
-    const updatedUser = {
-      ...appState.user,
-      reminder_time: morningTime,
-    }
+    try {
+      // Set up the reminder service
+      await reminderService.initialize()
+      
+      // Set the reminder time
+      const success = await reminderService.setReminderTime(morningTime)
+      
+      if (success) {
+        const updatedUser = {
+          ...appState.user,
+          reminder_time: morningTime,
+        }
 
-    storage.setUser(updatedUser)
-    updateAppState({ user: updatedUser })
-    navigateToScreen("daily-checkin")
+        storage.setUser(updatedUser)
+        updateAppState({ user: updatedUser })
+        
+        // Show success message
+        alert('Reminder set successfully! You\'ll receive a daily notification at ' + morningTime)
+        
+        navigateToScreen("daily-checkin")
+      } else {
+        alert('Failed to set reminder. Please try again.')
+      }
+    } catch (error) {
+      console.error('Failed to set reminder:', error)
+      alert('Failed to set reminder. Please try again.')
+    }
   }
 
   return (

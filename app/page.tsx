@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import type { AppState, AppScreen, User, CheckIn, Milestone } from "@/lib/types"
 import { hybridStorage } from "@/lib/hybrid-storage"
 import { useAuth } from "@/contexts/auth-context"
+import { reminderService } from "@/lib/reminder-service"
 import { WelcomeScreen } from "@/components/screens/welcome-screen"
 import { BaselineSetupScreen } from "@/components/screens/baseline-setup-screen"
 import { ReminderSetupScreen } from "@/components/screens/reminder-setup-screen"
@@ -31,6 +32,14 @@ export default function PMBaselineApp() {
 
       try {
         console.log('Initializing app...')
+        
+        // Initialize reminder service and PWA features
+        try {
+          await reminderService.initialize()
+          console.log('Reminder service initialized')
+        } catch (error) {
+          console.error('Failed to initialize reminder service:', error)
+        }
         
         // In development, use a simpler approach to avoid hanging
         if (process.env.NODE_ENV === 'development') {
