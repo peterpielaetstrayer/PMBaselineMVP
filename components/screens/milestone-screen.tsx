@@ -87,7 +87,7 @@ export function MilestoneScreen({ appState, updateAppState, navigateToScreen }: 
               <span className="text-2xl font-bold text-white">{currentStreak}</span>
             </div>
           </div>
-          <p className="text-navy-text font-semibold">Certified Readiness Achieved</p>
+          <p className="text-navy-text font-semibold">Readiness Signal Achieved</p>
           <p className="text-sm text-navy-text/60 mt-1">50+ days of consistent baseline alignment</p>
         </div>
 
@@ -95,7 +95,7 @@ export function MilestoneScreen({ appState, updateAppState, navigateToScreen }: 
           <div className="bg-ocean-light/10 rounded-lg p-4 border border-ocean-light/30">
             <h3 className="font-semibold text-navy-text mb-2">Universal Value Creation</h3>
             <p className="text-sm text-navy-text/70">
-              Your consistency demonstrates readiness for growth and contribution. We're excited to support your next
+              Your consistency is brewing waves of readiness for growth and contribution. We're excited to support your next
               phase of development.
             </p>
           </div>
@@ -318,7 +318,7 @@ export function MilestoneScreen({ appState, updateAppState, navigateToScreen }: 
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
             </svg>
           </div>
-          <h2 className="text-lg font-semibold text-navy-text mb-2">Certified Member</h2>
+          <h2 className="text-lg font-semibold text-navy-text mb-2">Readiness Signal Member</h2>
           <p className="text-navy-text/70 mb-4">Universal Value Creation Tier 1</p>
           <div className="bg-ocean-light/10 rounded-lg p-4">
             <p className="text-sm text-navy-text/70">
@@ -404,7 +404,7 @@ export function MilestoneScreen({ appState, updateAppState, navigateToScreen }: 
           <h3 className="text-lg font-semibold text-navy-text mb-4">Community</h3>
           <div className="space-y-3">
             <p className="text-navy-text/70">
-              Connect with other certified members who are creating value through consistent practice.
+              Connect with other readiness signal members who are creating value through consistent practice.
             </p>
             <Button
               variant="outline"

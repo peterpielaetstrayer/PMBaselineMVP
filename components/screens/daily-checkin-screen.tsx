@@ -82,7 +82,7 @@ export function DailyCheckinScreen({ appState, updateAppState, navigateToScreen 
     } else if (currentStreak < 21) {
       const messages = [
         "You're riding the wave of habit",
-        "Your consistency is inspiring",
+        "Your consistency is brewing coherence",
         "Finding your flow state",
         "Building unshakeable momentum",
       ]
@@ -90,14 +90,14 @@ export function DailyCheckinScreen({ appState, updateAppState, navigateToScreen 
     } else if (currentStreak < 50) {
       const messages = [
         "You're a habit master in training",
-        "Your dedication is remarkable",
+        "Your dedication is brewing waves of coherence",
         "Riding the wave of excellence",
         "Building something extraordinary",
       ]
       return messages[Math.floor(Math.random() * messages.length)]
     } else {
       const messages = [
-        "Certified readiness achieved! 🎉",
+        "Readiness signal achieved! 🎉",
         "You're living the baseline life",
         "Master of your own rhythm",
         "Inspiring others with your consistency",
@@ -169,8 +169,8 @@ export function DailyCheckinScreen({ appState, updateAppState, navigateToScreen 
               </p>
               <p className="text-sm text-navy-text/60 mt-1">
                 {50 - currentStreak > 0
-                  ? `${50 - currentStreak} days until certified readiness`
-                  : "You've achieved certified readiness!"}
+                  ? `${50 - currentStreak} days until readiness signal`
+                  : "You've achieved readiness signal!"}
               </p>
             </div>
           </div>
@@ -362,7 +362,7 @@ export function DailyCheckinScreen({ appState, updateAppState, navigateToScreen 
     const newStreak = storage.calculateStreak()
     const motivationalMessages = [
       "You showed up today - that's what matters!",
-      "Steady progress, building momentum",
+      "Steady progress, brewing momentum",
       "You're riding the wave of consistency",
       "Another day of alignment complete",
       "The waves are building with your rhythm",
@@ -388,11 +388,11 @@ export function DailyCheckinScreen({ appState, updateAppState, navigateToScreen 
                   <span className="text-2xl font-bold text-white">{newStreak}</span>
                 </div>
               </div>
-              <p className="text-navy-text font-semibold">Day {newStreak} complete</p>
+              <p className="text-navy-text font-semibold">Your system is tuning. Readiness is emerging.</p>
               <p className="text-sm text-navy-text/60 mt-1">
                 {50 - newStreak > 0
-                  ? `${50 - newStreak} days until certified readiness`
-                  : "You've achieved certified readiness!"}
+                  ? `${50 - newStreak} days until readiness signal`
+                  : "You've achieved readiness signal!"}
               </p>
             </div>
           </div>

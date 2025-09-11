@@ -23,7 +23,7 @@ export function HomeScreen({ appState, navigateToScreen }: HomeScreenProps) {
     if (currentStreak < 7) return "Building momentum"
     if (currentStreak < 21) return "Finding your rhythm"
     if (currentStreak < 50) return "Riding the wave"
-    return "Certified readiness achieved!"
+    return "Readiness signal achieved!"
   }
 
   const getUserMinimums = () => {
@@ -69,7 +69,7 @@ export function HomeScreen({ appState, navigateToScreen }: HomeScreenProps) {
 
             <div className="bg-ocean-light/10 rounded-lg p-4">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-navy-text/70">Progress to certification</span>
+                <span className="text-sm text-navy-text/70">Progress to readiness signal</span>
                 <span className="text-sm font-medium text-navy-text">{Math.min(currentStreak, 50)}/50</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2 progress-wave">
@@ -79,7 +79,7 @@ export function HomeScreen({ appState, navigateToScreen }: HomeScreenProps) {
                 ></div>
               </div>
               {currentStreak < 50 && (
-                <p className="text-xs text-navy-text/60 mt-2">{50 - currentStreak} days until certified readiness</p>
+                <p className="text-xs text-navy-text/60 mt-2">{50 - currentStreak} days until readiness signal</p>
               )}
             </div>
           </div>
@@ -154,9 +154,9 @@ export function HomeScreen({ appState, navigateToScreen }: HomeScreenProps) {
                 <div className="bg-gradient-to-r from-ocean-light/10 to-sun-accent/10 rounded-lg p-3">
                   <p className="text-sm text-navy-text font-medium">
                     {todayCheckin.physical_score >= 4 && todayCheckin.mental_score >= 4
-                      ? "🌟 High energy & clear mind - you're flowing beautifully!"
+                      ? "🌟 High energy & clear mind - you're flowing with beautiful coherence!"
                       : todayCheckin.physical_score >= 4
-                      ? "💪 Strong physical energy - your body is ready for action"
+                      ? "💪 Strong physical energy - your body is brewing waves of readiness"
                       : todayCheckin.mental_score >= 4
                       ? "🧠 Sharp mental clarity - your mind is focused and clear"
                       : todayCheckin.physical_score >= 3 && todayCheckin.mental_score >= 3

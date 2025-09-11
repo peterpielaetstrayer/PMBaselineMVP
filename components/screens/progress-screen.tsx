@@ -152,7 +152,7 @@ export function ProgressScreen({ appState, navigateToScreen }: ProgressScreenPro
     const avgPhysical = physicalScores.reduce((a, b) => a + b, 0) / physicalScores.length
 
     if (avgPhysical >= 4) {
-      insights.push("Your physical energy has been consistently strong")
+      insights.push("Your physical energy is brewing waves of strength")
     } else if (avgPhysical >= 3) {
       insights.push("You're maintaining steady physical energy")
     } else {
@@ -164,7 +164,7 @@ export function ProgressScreen({ appState, navigateToScreen }: ProgressScreenPro
     const avgMental = mentalScores.reduce((a, b) => a + b, 0) / mentalScores.length
 
     if (avgMental >= 4) {
-      insights.push("Your mental clarity is flowing beautifully")
+      insights.push("Your mental clarity is flowing with beautiful coherence")
     } else if (avgMental >= 3) {
       insights.push("You're finding good mental rhythm")
     } else {
@@ -174,7 +174,7 @@ export function ProgressScreen({ appState, navigateToScreen }: ProgressScreenPro
     // Consistency patterns
     const completionRate = (checkins.length / Math.max(currentStreak, 1)) * 100
     if (completionRate >= 90) {
-      insights.push("Your consistency is creating powerful momentum")
+      insights.push("Your consistency is brewing powerful momentum")
     } else if (completionRate >= 70) {
       insights.push("You're building a solid foundation of habits")
     }
@@ -382,7 +382,7 @@ export function ProgressScreen({ appState, navigateToScreen }: ProgressScreenPro
           <h3 className="text-lg font-semibold text-navy-text mb-4">Milestone Progress</h3>
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-navy-text/70">50-Day Certification</span>
+              <span className="text-navy-text/70">50-Day Readiness Signal</span>
               <span className="font-medium text-navy-text">{Math.min(currentStreak, 50)}/50</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3">
@@ -392,9 +392,9 @@ export function ProgressScreen({ appState, navigateToScreen }: ProgressScreenPro
               ></div>
             </div>
             {currentStreak < 50 ? (
-              <p className="text-sm text-navy-text/60">{50 - currentStreak} days until certified readiness</p>
+              <p className="text-sm text-navy-text/60">{50 - currentStreak} days until readiness signal</p>
             ) : (
-              <p className="text-sm text-success-green font-medium">Certified readiness achieved! 🎉</p>
+              <p className="text-sm text-success-green font-medium">Readiness signal achieved! 🎉</p>
             )}
           </div>
         </Card>
@@ -466,7 +466,7 @@ export function ProgressScreen({ appState, navigateToScreen }: ProgressScreenPro
                   ? "Finding your rhythm"
                   : currentStreak < 50
                     ? "Riding the wave"
-                    : "Certified readiness achieved!"}
+                    : "Readiness signal achieved!"}
           </p>
           
           {/* Grace Period Info */}
