@@ -138,6 +138,22 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Force light mode for better visibility */
+  html {
+    color-scheme: light;
+  }
+  
+  /* Ensure dark mode still works but with better contrast */
+  .dark {
+    --ocean-deep: #0a5b85;
+    --ocean-light: #b7e3f7;
+    --sun-accent: #fdbb2d;
+    --sand-neutral: #f4e3c1;
+    --navy-text: #ffffff;
+    --success-green: #2ecc71;
+    --warning-orange: #ff8c42;
+  }
 
   /* Custom utility classes for PMBaseline */
   .ocean-gradient {
