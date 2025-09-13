@@ -15,7 +15,7 @@ import { MilestoneScreen } from "@/components/screens/milestone-screen"
 import { LoginScreen } from "@/components/screens/login-screen"
 
 export default function PMBaselineApp() {
-  const { user: authUser, loading: authLoading } = useAuth()
+  const { user: authUser, loading: authLoading, signOut } = useAuth()
   const [appState, setAppState] = useState<AppState>({
     currentScreen: "welcome",
     user: null,
@@ -33,7 +33,7 @@ export default function PMBaselineApp() {
       try {
         console.log('Initializing app...')
         
-        // Initialize reminder service and PWA features
+        // Initialize reminder service
         try {
           await reminderService.initialize()
           console.log('Reminder service initialized')
@@ -41,96 +41,60 @@ export default function PMBaselineApp() {
           console.error('Failed to initialize reminder service:', error)
         }
         
-        // In development, use a simpler approach to avoid hanging
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Development mode - using simple initialization')
-          setAppState({
-            currentScreen: "welcome",
-            user: null,
-            todayCheckin: null,
-            checkins: [],
-            milestone: null,
-          })
-          setIsLoading(false)
-          return
-        }
-        
-        // Add timeout to prevent infinite loading
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Initialization timeout')), 10000)
-        })
-        
-        const initPromise = (async () => {
-          // Use hybrid storage (Supabase + localStorage fallback)
-          console.log('Getting user...')
-          let user: User | null = null
-          try {
-            user = await hybridStorage.getUser()
-          } catch (error) {
-            console.error('Failed to get user, using fallback:', error)
-            user = null
-          }
-          console.log('User loaded:', user ? 'yes' : 'no')
+        // Load app data with timeout
+        const loadData = async () => {
+          const timeout = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Data load timeout')), 5000)
+          )
           
-          console.log('Getting checkins...')
-          let checkins: CheckIn[] = []
-          try {
-            checkins = await hybridStorage.getCheckins()
-          } catch (error) {
-            console.error('Failed to get checkins, using fallback:', error)
-            checkins = []
-          }
-          console.log('Checkins loaded:', checkins.length)
-          
-          console.log('Getting today checkin...')
-          let todayCheckin: CheckIn | null = null
-          try {
-            todayCheckin = await hybridStorage.getTodayCheckin()
-          } catch (error) {
-            console.error('Failed to get today checkin, using fallback:', error)
-            todayCheckin = null
-          }
-          console.log('Today checkin loaded:', todayCheckin ? 'yes' : 'no')
-          
-          console.log('Getting milestone...')
-          let milestone: Milestone | null = null
-          try {
-            milestone = await hybridStorage.getMilestone()
-          } catch (error) {
-            console.error('Failed to get milestone, using fallback:', error)
-            milestone = null
-          }
-          console.log('Milestone loaded:', milestone ? 'yes' : 'no')
+          const dataPromise = (async () => {
+            let user: User | null = null
+            let checkins: CheckIn[] = []
+            let todayCheckin: CheckIn | null = null
+            let milestone: Milestone | null = null
 
-          // Determine initial screen based on user state
-          let initialScreen: AppScreen = "welcome"
-
-          if (user) {
-            if (user.selected_minimums.length === 0) {
-              initialScreen = "baseline-setup"
-            } else if (!user.reminder_time) {
-              initialScreen = "reminder-setup"
-            } else if (!todayCheckin) {
-              initialScreen = "daily-checkin"
-            } else {
-              initialScreen = "home"
+            try {
+              user = await hybridStorage.getUser()
+              checkins = await hybridStorage.getCheckins()
+              todayCheckin = await hybridStorage.getTodayCheckin()
+              milestone = await hybridStorage.getMilestone()
+            } catch (error) {
+              console.error('Failed to load data:', error)
+              // Use fallback values
             }
-          }
 
-          console.log('Setting initial screen:', initialScreen)
-          setAppState({
-            currentScreen: initialScreen,
-            user,
-            todayCheckin,
-            checkins,
-            milestone,
-          })
-        })()
-        
-        await Promise.race([initPromise, timeoutPromise])
+            return { user, checkins, todayCheckin, milestone }
+          })()
+
+          return Promise.race([dataPromise, timeout])
+        }
+
+        const { user, checkins, todayCheckin, milestone } = await loadData()
+
+        // Determine initial screen
+        let initialScreen: AppScreen = "welcome"
+        if (user) {
+          if (user.selected_minimums.length === 0) {
+            initialScreen = "baseline-setup"
+          } else if (!user.reminder_time) {
+            initialScreen = "reminder-setup"
+          } else if (!todayCheckin) {
+            initialScreen = "daily-checkin"
+          } else {
+            initialScreen = "home"
+          }
+        }
+
+        setAppState({
+          currentScreen: initialScreen,
+          user,
+          todayCheckin,
+          checkins,
+          milestone,
+        })
       } catch (error) {
         console.error('Failed to initialize app:', error)
-        // Set a default state to prevent infinite loading
+        // Set default state
         setAppState({
           currentScreen: "welcome",
           user: null,
@@ -170,28 +134,8 @@ export default function PMBaselineApp() {
 
   const handleLoginSuccess = () => {
     setShowLogin(false)
-    // Refresh app state after login
-    window.location.reload()
+    // The auth context will handle the state update automatically
   }
-
-  // Force load after 15 seconds to prevent infinite loading
-  useEffect(() => {
-    const forceLoadTimer = setTimeout(() => {
-      if (isLoading) {
-        console.log('Force loading app after timeout...')
-        setIsLoading(false)
-        setAppState({
-          currentScreen: "welcome",
-          user: null,
-          todayCheckin: null,
-          checkins: [],
-          milestone: null,
-        })
-      }
-    }, 15000)
-
-    return () => clearTimeout(forceLoadTimer)
-  }, [isLoading])
 
   if (authLoading || isLoading) {
     return (
@@ -199,31 +143,11 @@ export default function PMBaselineApp() {
         <div className="text-center fade-in">
           <div className="wave-spinner mx-auto mb-6"></div>
           <p className="text-navy-text/60 floating-animation">
-            Loading your baseline... {isLoading && authLoading ? '(Auth + App)' : authLoading ? '(Auth)' : '(App)'}
+            Loading your baseline...
           </p>
           <p className="text-xs text-navy-text/40 mt-2">
-            If this takes too long, try refreshing the page
+            Auth: {authLoading ? 'Loading' : 'Ready'} | App: {isLoading ? 'Loading' : 'Ready'}
           </p>
-          
-          {/* Debug button for development */}
-          {process.env.NODE_ENV === 'development' && (
-            <button
-              onClick={() => {
-                console.log('Force loading app...')
-                setIsLoading(false)
-                setAppState({
-                  currentScreen: "welcome",
-                  user: null,
-                  todayCheckin: null,
-                  checkins: [],
-                  milestone: null,
-                })
-              }}
-              className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
-            >
-              Force Load App (Debug)
-            </button>
-          )}
         </div>
       </div>
     )
@@ -254,7 +178,7 @@ export default function PMBaselineApp() {
               {authUser.email}
             </span>
             <button
-              onClick={() => window.location.reload()}
+              onClick={signOut}
               className="text-xs text-navy-text/50 hover:text-navy-text/70"
             >
               Sign Out

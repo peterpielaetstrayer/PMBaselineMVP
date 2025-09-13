@@ -7,35 +7,16 @@ export class HybridStorage {
   private currentUserId: string | null = null
 
   constructor() {
-    // Only check auth status on client side
-    if (typeof window !== 'undefined') {
-      // Add a small delay to ensure Supabase is ready
-      setTimeout(() => {
-        this.checkAuthStatus()
-      }, 100)
-    }
+    // Initialize with default values - auth state will be updated by auth context
+    this.isAuthenticated = false
+    this.currentUserId = null
   }
 
-  private async checkAuthStatus() {
-    console.log('Checking auth status...')
-    if (!supabase) {
-      console.log('No Supabase client available')
-      return
-    }
-    
-    try {
-      const { data: { session }, error } = await supabase.auth.getSession()
-      if (error) {
-        console.error('Error getting session:', error)
-        return
-      }
-      
-      this.isAuthenticated = !!session
-      this.currentUserId = session?.user?.id || null
-      console.log('Auth status:', { isAuthenticated: this.isAuthenticated, userId: this.currentUserId })
-    } catch (error) {
-      console.error('Failed to check auth status:', error)
-    }
+  // Method to update auth state from auth context
+  async updateAuthState(isAuthenticated: boolean, userId: string | null) {
+    this.isAuthenticated = isAuthenticated
+    this.currentUserId = userId
+    console.log('Auth state updated:', { isAuthenticated: this.isAuthenticated, userId: this.currentUserId })
   }
 
   // User Management

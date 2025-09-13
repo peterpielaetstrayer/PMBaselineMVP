@@ -57,14 +57,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
+    let mounted = true
+
     // Get initial session
     const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session?.user) {
-        await ensureUserProfile(session.user)
+      console.log('Auth context: Getting initial session...')
+      
+      if (!supabase) {
+        console.log('Auth context: No Supabase client, setting user to null')
+        if (mounted) {
+          setUser(null)
+          setLoading(false)
+        }
+        return
       }
-      setUser(session?.user ?? null)
-      setLoading(false)
+
+      try {
+        console.log('Auth context: Calling supabase.auth.getSession()...')
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (error) {
+          console.error('Error getting session:', error)
+        }
+
+        console.log('Auth context: Session result:', { hasSession: !!session, hasUser: !!session?.user })
+
+        if (mounted) {
+          if (session?.user) {
+            console.log('Auth context: User found, ensuring profile...')
+            await ensureUserProfile(session.user)
+            // Update hybrid storage auth state
+            await hybridStorage.updateAuthState(true, session.user.id)
+          } else {
+            console.log('Auth context: No user, updating hybrid storage...')
+            await hybridStorage.updateAuthState(false, null)
+          }
+          
+          setUser(session?.user ?? null)
+          setLoading(false)
+          console.log('Auth context: Initialization complete')
+        }
+      } catch (error) {
+        console.error('Failed to get initial session:', error)
+        if (mounted) {
+          setUser(null)
+          setLoading(false)
+        }
+      }
     }
 
     getInitialSession()
@@ -72,24 +111,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: string, session: any) => {
-        if (session?.user) {
-          await ensureUserProfile(session.user)
-        }
-        setUser(session?.user ?? null)
-        setLoading(false)
+        if (!mounted) return
 
-        // If user just signed in, migrate their data
-        if (event === 'SIGNED_IN' && session?.user) {
-          try {
-            await hybridStorage.migrateFromLocalStorage()
-          } catch (error) {
-            console.error('Failed to migrate data:', error)
+        try {
+          if (session?.user) {
+            await ensureUserProfile(session.user)
+            // Update hybrid storage auth state
+            await hybridStorage.updateAuthState(true, session.user.id)
+          } else {
+            await hybridStorage.updateAuthState(false, null)
+          }
+
+          setUser(session?.user ?? null)
+          setLoading(false)
+
+          // If user just signed in, migrate their data
+          if (event === 'SIGNED_IN' && session?.user) {
+            try {
+              await hybridStorage.migrateFromLocalStorage()
+            } catch (error) {
+              console.error('Failed to migrate data:', error)
+            }
+          }
+        } catch (error) {
+          console.error('Error in auth state change:', error)
+          if (mounted) {
+            setUser(null)
+            setLoading(false)
           }
         }
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signIn = async (email: string, password: string) => {
@@ -140,7 +197,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
+    try {
+      if (supabase) {
+        await supabase.auth.signOut()
+      }
+      // Update hybrid storage auth state
+      await hybridStorage.updateAuthState(false, null)
+      setUser(null)
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
   }
 
   const resetPassword = async (email: string) => {
