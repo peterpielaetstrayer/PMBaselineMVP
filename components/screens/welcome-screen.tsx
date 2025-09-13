@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { CommunityCounter } from "@/components/community-counter"
 import type { AppState, AppScreen } from "@/lib/types"
 
 interface WelcomeScreenProps {
@@ -68,6 +69,10 @@ export function WelcomeScreen({ navigateToScreen }: WelcomeScreenProps) {
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="mb-6">
+          <CommunityCounter />
         </div>
 
         <Button

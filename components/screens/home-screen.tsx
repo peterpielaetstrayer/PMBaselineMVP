@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { CommunityCounter } from "@/components/community-counter"
 import type { AppState, AppScreen } from "@/lib/types"
 import { PHYSICAL_MINIMUMS, MENTAL_MINIMUMS } from "@/lib/types"
 import { storage } from "@/lib/storage"
@@ -53,6 +54,9 @@ export function HomeScreen({ appState, navigateToScreen }: HomeScreenProps) {
           <h1 className="text-2xl font-bold text-navy-text mb-2">Your Baseline</h1>
           <p className="text-navy-text/70">{getStreakMessage()}</p>
         </div>
+
+        {/* Community Counter */}
+        <CommunityCounter />
 
         {/* Streak Dashboard */}
         <Card className="p-6 wave-shadow pulse-glow scale-in">

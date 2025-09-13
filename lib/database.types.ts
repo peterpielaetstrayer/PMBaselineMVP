@@ -116,7 +116,13 @@ export interface Database {
       }
     }
     Views: {
-      [_ in never]: never
+      weekly_community_stats: {
+        Row: {
+          total_checkins: number
+          unique_users: number
+          week_start: string
+        }
+      }
     }
     Functions: {
       [_ in never]: never
