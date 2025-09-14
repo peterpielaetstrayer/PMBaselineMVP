@@ -42,8 +42,8 @@ export default function PMBaselineApp() {
         }
         
         // Load app data with timeout
-        const loadData = async () => {
-          const timeout = new Promise((_, reject) => 
+        const loadData = async (): Promise<{ user: User | null; checkins: CheckIn[]; todayCheckin: CheckIn | null; milestone: Milestone | null }> => {
+          const timeout = new Promise<never>((_, reject) => 
             setTimeout(() => reject(new Error('Data load timeout')), 5000)
           )
           

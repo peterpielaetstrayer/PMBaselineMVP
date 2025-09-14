@@ -26,19 +26,47 @@ export class HybridStorage {
     if (this.isAuthenticated && this.currentUserId) {
       try {
         console.log('Attempting to get user from Supabase...')
-        const { data, error } = await supabase
+        
+        // Get user basic info
+        const { data: userData, error: userError } = await supabase
           .from(TABLES.USERS)
           .select('*')
           .eq('id', this.currentUserId)
           .single()
 
-        if (error) {
-          console.error('Supabase error:', error)
-          throw error
+        if (userError) {
+          console.error('Supabase user error:', userError)
+          throw userError
         }
         
-        console.log('User data from Supabase:', data)
-        return this.mapDbUserToUser(data)
+        // Get user's selected minimums
+        const { data: minimumsData, error: minimumsError } = await supabase
+          .from(TABLES.USER_MINIMUMS)
+          .select('minimum_id')
+          .eq('user_id', this.currentUserId)
+
+        if (minimumsError) {
+          console.error('Supabase minimums error:', minimumsError)
+          // Don't throw here, just use empty array
+        }
+
+        // Get user's checkins for streak calculation
+        const { data: checkinsData, error: checkinsError } = await supabase
+          .from(TABLES.CHECKINS)
+          .select('date, created_at')
+          .eq('user_id', this.currentUserId)
+          .order('date', { ascending: false })
+
+        if (checkinsError) {
+          console.error('Supabase checkins error:', checkinsError)
+          // Don't throw here, just use empty array
+        }
+
+        console.log('User data from Supabase:', { userData, minimumsData, checkinsData })
+        
+        const user = this.mapDbUserToUser(userData, minimumsData || [], checkinsData || [])
+        console.log('Mapped user:', user)
+        return user
       } catch (error) {
         console.warn('Failed to get user from Supabase, falling back to localStorage:', error)
       }
@@ -52,18 +80,50 @@ export class HybridStorage {
   async setUser(user: User): Promise<void> {
     if (this.isAuthenticated && this.currentUserId) {
       try {
-        const { error } = await supabase
+        // Save user basic info
+        const { error: userError } = await supabase
           .from(TABLES.USERS)
           .upsert({
             id: this.currentUserId,
             email: user.email,
             name: user.name,
             timezone: user.timezone,
+            reminder_time: user.reminder_time,
+            is_certified: user.is_certified,
             created_at: user.created_at.toISOString(),
             updated_at: new Date().toISOString(),
           })
 
-        if (error) throw error
+        if (userError) throw userError
+
+        // Save user's selected minimums
+        if (user.selected_minimums.length > 0) {
+          // First, delete existing minimums
+          const { error: deleteError } = await supabase
+            .from(TABLES.USER_MINIMUMS)
+            .delete()
+            .eq('user_id', this.currentUserId)
+
+          if (deleteError) {
+            console.warn('Failed to delete existing minimums:', deleteError)
+          }
+
+          // Then insert new minimums
+          const minimumsToInsert = user.selected_minimums.map(minimumId => ({
+            user_id: this.currentUserId,
+            minimum_id: minimumId,
+            minimum_type: minimumId.includes('walk') || minimumId.includes('movement') || minimumId.includes('sunlight') || minimumId.includes('hydration') ? 'physical' : 'mental',
+            created_at: new Date().toISOString()
+          }))
+
+          const { error: minimumsError } = await supabase
+            .from(TABLES.USER_MINIMUMS)
+            .insert(minimumsToInsert)
+
+          if (minimumsError) {
+            console.warn('Failed to save user minimums:', minimumsError)
+          }
+        }
       } catch (error) {
         console.warn('Failed to save user to Supabase, falling back to localStorage:', error)
       }
@@ -171,19 +231,47 @@ export class HybridStorage {
   }
 
   // Mapping functions
-  private mapDbUserToUser(dbUser: any): User {
+  private mapDbUserToUser(dbUser: any, minimumsData: any[] = [], checkinsData: any[] = []): User {
+    // Calculate streak from checkins data
+    const streakCount = this.calculateStreakFromCheckins(checkinsData)
+    
     return {
       id: dbUser.id,
       name: dbUser.name || 'User',
       email: dbUser.email,
       timezone: dbUser.timezone || 'UTC',
       created_at: new Date(dbUser.created_at),
-      selected_minimums: [], // Will be populated from user_minimums table
-      reminder_time: '', // Will be added later
-      streak_count: 0, // Will be calculated
-      total_checkins: 0, // Will be calculated
-      is_certified: false, // Will be added later
+      selected_minimums: minimumsData.map(m => m.minimum_id),
+      reminder_time: dbUser.reminder_time || '',
+      streak_count: streakCount,
+      total_checkins: checkinsData.length,
+      is_certified: dbUser.is_certified || false,
     }
+  }
+
+  private calculateStreakFromCheckins(checkinsData: any[]): number {
+    if (checkinsData.length === 0) return 0
+    
+    // Sort checkins by date (most recent first)
+    const sortedCheckins = checkinsData.sort((a, b) => b.date.localeCompare(a.date))
+    
+    let streak = 0
+    const today = new Date().toISOString().split('T')[0]
+    let currentDate = new Date(today)
+    
+    for (const checkin of sortedCheckins) {
+      const checkinDate = new Date(checkin.date)
+      const daysDiff = Math.floor((currentDate.getTime() - checkinDate.getTime()) / (1000 * 60 * 60 * 24))
+      
+      if (daysDiff === streak) {
+        streak++
+        currentDate.setDate(currentDate.getDate() - 1)
+      } else {
+        break
+      }
+    }
+    
+    return streak
   }
 
   private mapDbCheckinToCheckin(dbCheckin: any): CheckIn {
