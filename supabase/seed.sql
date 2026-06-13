@@ -1,0 +1,2 @@
+-- No seed data for v0.1 alpha.
+-- Personal or production information must not be committed here.
