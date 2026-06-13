@@ -28,7 +28,7 @@ export function DailyCheckinScreen({ appState, updateAppState, navigateToScreen 
     if (partial) {
       setPhysicalScore(partial.physical_score)
       setMentalScore(partial.mental_score)
-      setMinimumsMet(partial.minimumsMet)
+      setMinimumsMet(partial.minimums_met)
       setNotes(partial.notes || "")
       setStep("checkin")
     }
