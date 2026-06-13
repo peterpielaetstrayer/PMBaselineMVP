@@ -57,6 +57,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
+    if (!supabase) {
+      setLoading(false)
+      return
+    }
+
     // Get initial session
     const getInitialSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
@@ -93,6 +98,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
+    if (!supabase) {
+      return { error: { message: 'Authentication is not configured' } }
+    }
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -101,6 +109,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signUp = async (email: string, password: string, name: string) => {
+    if (!supabase) {
+      return { error: { message: 'Authentication is not configured' } }
+    }
     const { error, data } = await supabase.auth.signUp({
       email,
       password,
@@ -140,10 +151,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
+    if (!supabase) return
     await supabase.auth.signOut()
   }
 
   const resetPassword = async (email: string) => {
+    if (!supabase) {
+      return { error: { message: 'Authentication is not configured' } }
+    }
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     })
