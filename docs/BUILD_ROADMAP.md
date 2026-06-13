@@ -9,7 +9,7 @@ Do not build a giant wellness app. Build the smallest complete loop that proves 
 
 ## Phase 0 — Foundation
 
-Status: mostly complete on branch `foundation-baseline-v0-1`.
+Status: complete on `master`. The branch `foundation-baseline-v0-1` has served its purpose and is retired.
 
 Deliverables:
 
@@ -157,7 +157,7 @@ Success condition:
 
 ## Current recommended next engineering move
 
-After this documentation branch is pulled in Cursor:
+After pulling `master` in Cursor:
 
 1. run the app locally;
 2. verify build health;

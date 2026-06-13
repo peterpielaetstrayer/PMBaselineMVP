@@ -11,11 +11,15 @@ Use this repository:
 peterpielaetstrayer/PMBaselineMVP
 ```
 
-Primary foundation branch:
+Canonical branch (source of truth):
 
 ```text
-foundation-baseline-v0-1
+master
 ```
+
+All new work branches from `master` and merges back into `master` via pull request.
+
+The branch `foundation-baseline-v0-1` has served its purpose (foundation docs and early planning). It is retired — do not branch from it or target it for merges.
 
 Do not work in `pmbaseline`, `baseline-app`, or `pmbaseline-reset` unless explicitly migrating specific ideas or files.
 
@@ -34,16 +38,16 @@ Then fetch the latest remote branches:
 git fetch origin
 ```
 
-Check out the foundation branch:
+Check out `master`:
 
 ```bash
-git checkout foundation-baseline-v0-1
+git checkout master
 ```
 
 Pull the latest changes:
 
 ```bash
-git pull origin foundation-baseline-v0-1
+git pull origin master
 ```
 
 Install dependencies:
@@ -77,10 +81,10 @@ git fetch origin
 git pull
 ```
 
-If you are on a specific branch:
+If you are on `master`:
 
 ```bash
-git pull origin foundation-baseline-v0-1
+git pull origin master
 ```
 
 ## Working pattern
@@ -97,11 +101,13 @@ git pull
 
 If you have uncommitted local changes, do not pull blindly. Commit or stash first.
 
-### 2. Create a feature branch
+### 2. Create a feature branch from master
 
 Example:
 
 ```bash
+git checkout master
+git pull origin master
 git checkout -b feature/deterministic-mode-engine
 ```
 
@@ -139,11 +145,19 @@ git commit -m "feat: add deterministic baseline mode engine"
 git push origin feature/deterministic-mode-engine
 ```
 
-### 6. Ask ChatGPT to review
+### 6. Open a pull request into master
+
+```bash
+gh pr create --base master --head feature/deterministic-mode-engine
+```
+
+Merge only after review and checks pass. Delete the feature branch after merge.
+
+### 7. Ask ChatGPT to review
 
 Tell ChatGPT:
 
-> Review branch `feature/deterministic-mode-engine` in `peterpielaetstrayer/PMBaselineMVP` against the docs and tell me what to fix before merging.
+> Review branch `feature/deterministic-mode-engine` in `peterpielaetstrayer/PMBaselineMVP` against the docs and tell me what to fix before merging into `master`.
 
 ChatGPT can inspect branches, files, commits, and pull requests through GitHub.
 
@@ -198,7 +212,7 @@ Cursor should not:
 
 ## Best first Cursor prompt
 
-Use this after pulling the foundation branch:
+Use this after pulling `master`:
 
 ```text
 You are working in the PMBaseline repository. First read:
