@@ -106,7 +106,6 @@ export class ReminderService {
           body: 'Time for your daily check-in! Build your foundation today.',
           icon: '/icon-192.svg',
           badge: '/icon-192.svg',
-          vibrate: [200, 100, 200],
           requireInteraction: true,
           tag: 'daily-reminder',
           data: {

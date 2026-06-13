@@ -15,7 +15,7 @@ import { MilestoneScreen } from "@/components/screens/milestone-screen"
 import { LoginScreen } from "@/components/screens/login-screen"
 
 export default function PMBaselineApp() {
-  const { user: authUser, loading: authLoading } = useAuth()
+  const { user: authUser, loading: authLoading, signOut } = useAuth()
   const [appState, setAppState] = useState<AppState>({
     currentScreen: "welcome",
     user: null,
@@ -254,7 +254,7 @@ export default function PMBaselineApp() {
               {authUser.email}
             </span>
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => signOut()}
               className="text-xs text-navy-text/50 hover:text-navy-text/70"
             >
               Sign Out

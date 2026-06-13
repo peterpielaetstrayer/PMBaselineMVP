@@ -2,6 +2,8 @@
 
 A habit tracking application focused on building consistent daily physical and mental minimums. Track your progress, build streaks, and achieve milestones.
 
+**Project canon and build direction live in [`docs/`](docs/).** Start with [`docs/PROJECT_CANON.md`](docs/PROJECT_CANON.md), [`docs/MVP_SPEC.md`](docs/MVP_SPEC.md), and [`docs/BUILD_ROADMAP.md`](docs/BUILD_ROADMAP.md) before making product or architecture changes.
+
 ## Features
 
 - **Daily Check-ins**: Track physical and mental minimums daily

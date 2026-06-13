@@ -153,7 +153,7 @@ export const storage = {
   getPartialCheckin: (): {
     physical_score: number
     mental_score: number
-    minimumsMet: string[]
+    minimums_met: string[]
     notes: string
     timestamp: number
   } | null => {
@@ -168,7 +168,10 @@ export const storage = {
       return null
     }
     
-    return partial
+    return {
+      ...partial,
+      minimums_met: partial.minimums_met ?? partial.minimumsMet ?? [],
+    }
   },
 
   clearPartialCheckin: (): void => {
