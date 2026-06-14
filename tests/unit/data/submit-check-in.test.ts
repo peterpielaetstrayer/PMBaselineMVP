@@ -145,6 +145,47 @@ describe('submitCheckInWithInterpretation', () => {
     }
   })
 
+  it('preserves needsMoreInformation on idempotent replay from stored reason codes', async () => {
+    const client = createRpcClient({
+      rpcResult: {
+        check_in_id: '770e8400-e29b-41d4-a716-446655440002',
+        interpretation_id: '880e8400-e29b-41d4-a716-446655440003',
+        idempotent_replay: true,
+      },
+      interpretationRow: {
+        id: '880e8400-e29b-41d4-a716-446655440003',
+        proposed_mode: 'rebuild',
+        confidence: 0.4,
+        summary: 'Need more context before recommending.',
+        primary_action: interpretation.primaryAction,
+        alternative_actions: [],
+        avoid_for_now: [],
+        reflection_prompt: 'What would help clarify your situation?',
+        safety: { level: 'standard', message: null },
+        source: 'fallback',
+        engine_version: 'baseline-engine-v0.1',
+        reason_codes: ['INSUFFICIENT_INFORMATION'],
+        factors: ['Missing key signals'],
+      },
+    })
+
+    const result = await submitCheckInWithInterpretation(client, {
+      checkIn,
+      interpretation: {
+        ...interpretation,
+        needsMoreInformation: false,
+        reasonCodes: ['MODERATE_STABLE_CAPACITY'],
+      },
+    })
+
+    expect(result.ok).toBe(true)
+    if (result.ok) {
+      expect(result.data.idempotentReplay).toBe(true)
+      expect(result.data.needsMoreInformation).toBe(true)
+      expect(result.data.reasonCodes).toContain('INSUFFICIENT_INFORMATION')
+    }
+  })
+
   it('maps missing submission_id RPC errors to RPC_ERROR', async () => {
     const client = createRpcClient({
       rpcError: { message: 'submission_id is required' },

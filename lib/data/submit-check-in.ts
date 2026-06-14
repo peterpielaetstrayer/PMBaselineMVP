@@ -153,6 +153,6 @@ export function rowToStoredInterpretation(
     engineVersion: row.engine_version ?? 'unknown',
     reasonCodes: row.reason_codes,
     factors: row.factors,
-    needsMoreInformation: false,
+    needsMoreInformation: row.reason_codes.includes('INSUFFICIENT_INFORMATION'),
   })
 }
