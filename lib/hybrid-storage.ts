@@ -1,3 +1,7 @@
+/**
+ * @deprecated Legacy hybrid storage (localStorage + legacy Supabase tables).
+ * Screens still use this module; new features should use `@/lib/data` with the canonical schema.
+ */
 import { supabase, TABLES } from './supabase'
 import type { User, CheckIn, Milestone } from './types'
 import { storage as localStorage } from './storage'

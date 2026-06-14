@@ -1,3 +1,4 @@
+/** @deprecated Legacy localStorage persistence. Screens still use this; do not extend for new features. */
 import type { User, CheckIn, Milestone } from "./types"
 
 const STORAGE_KEYS = {

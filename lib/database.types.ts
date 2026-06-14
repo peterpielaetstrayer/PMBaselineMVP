@@ -1,3 +1,7 @@
+/**
+ * @deprecated Legacy database types for users/checkins/milestones/user_minimums.
+ * Use `@/lib/supabase/database.types` for the canonical schema.
+ */
 export interface Database {
   public: {
     Tables: {

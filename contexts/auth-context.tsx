@@ -1,9 +1,8 @@
 "use client"
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { getBrowserClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
-import { hybridStorage } from '@/lib/hybrid-storage'
 
 interface AuthContextType {
   user: User | null
@@ -20,87 +19,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // Ensure user profile exists in database
-  const ensureUserProfile = async (user: User) => {
-    if (!supabase) return
-    
-    try {
-      // Check if profile exists
-      const { data: existingProfile, error: checkError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('id', user.id)
-        .single()
-      
-      if (checkError && checkError.code === 'PGRST116') {
-        // Profile doesn't exist, create it
-        const { error: createError } = await supabase
-          .from('users')
-          .insert({
-            id: user.id,
-            email: user.email,
-            name: user.user_metadata?.name || 'User',
-            timezone: 'UTC',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-        
-        if (createError) {
-          console.error('Failed to create user profile:', createError)
-        } else {
-          console.log('User profile created successfully')
-        }
-      }
-    } catch (error) {
-      console.error('Error ensuring user profile:', error)
-    }
-  }
-
   useEffect(() => {
+    const supabase = getBrowserClient()
     if (!supabase) {
       setLoading(false)
       return
     }
 
-    // Get initial session
     const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session?.user) {
-        await ensureUserProfile(session.user)
-      }
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
       setUser(session?.user ?? null)
       setLoading(false)
     }
 
     getInitialSession()
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event: string, session: any) => {
-        if (session?.user) {
-          await ensureUserProfile(session.user)
-        }
-        setUser(session?.user ?? null)
-        setLoading(false)
-
-        // If user just signed in, migrate their data
-        if (event === 'SIGNED_IN' && session?.user) {
-          try {
-            await hybridStorage.migrateFromLocalStorage()
-          } catch (error) {
-            console.error('Failed to migrate data:', error)
-          }
-        }
-      }
-    )
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
 
     return () => subscription.unsubscribe()
   }, [])
 
   const signIn = async (email: string, password: string) => {
+    const supabase = getBrowserClient()
     if (!supabase) {
       return { error: { message: 'Authentication is not configured' } }
     }
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -109,10 +60,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signUp = async (email: string, password: string, name: string) => {
+    const supabase = getBrowserClient()
     if (!supabase) {
       return { error: { message: 'Authentication is not configured' } }
     }
-    const { error, data } = await supabase.auth.signUp({
+
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -121,44 +74,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
       },
     })
-    
-    if (error) return { error }
-    
-    // If signup successful, create user profile
-    if (data.user) {
-      try {
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert({
-            id: data.user.id,
-            email: data.user.email!,
-            name: name,
-            timezone: 'UTC',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-        
-        if (profileError) {
-          console.error('Failed to create user profile:', profileError)
-          // Don't return error here as auth was successful
-        }
-      } catch (profileError) {
-        console.error('Failed to create user profile:', profileError)
-      }
-    }
-    
-    return { error: null }
+
+    return { error }
   }
 
   const signOut = async () => {
+    const supabase = getBrowserClient()
     if (!supabase) return
     await supabase.auth.signOut()
   }
 
   const resetPassword = async (email: string) => {
+    const supabase = getBrowserClient()
     if (!supabase) {
       return { error: { message: 'Authentication is not configured' } }
     }
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     })
@@ -174,11 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     resetPassword,
   }
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

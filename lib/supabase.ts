@@ -1,3 +1,8 @@
+/**
+ * @deprecated Legacy Supabase client and table constants.
+ * Use `@/lib/supabase/client` and `@/lib/supabase/database.types` for new code.
+ * Do not add new writes to legacy tables (users, checkins, milestones, user_minimums).
+ */
 import { createClient } from '@supabase/supabase-js'
 
 // Only create client on client side
