@@ -75,6 +75,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
     })
 
+    console.error("[auth.signUp result]", error)
+
     return { error }
   }
 

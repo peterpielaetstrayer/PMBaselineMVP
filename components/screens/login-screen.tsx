@@ -95,9 +95,10 @@ export function LoginScreen({ onSuccess, onBack }: LoginScreenProps) {
     try {
       const { error } = await signUp(email, password, name)
       if (error) {
+        console.error("[signUp failed]", error)
         toast({
           title: "Sign up failed",
-          description: error.message,
+          description: error?.message ?? "Sign up failed. Check console for details.",
           variant: "destructive",
         })
       } else {
