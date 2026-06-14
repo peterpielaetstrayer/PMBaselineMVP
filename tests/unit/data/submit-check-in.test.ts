@@ -4,8 +4,10 @@ import { InterpretationPayloadSchema } from '@/lib/validation/interpretation'
 import { QuickCheckInInputSchema } from '@/lib/validation/check-in'
 import type { AuthenticatedSupabaseClient } from '@/lib/data/session'
 
+const submissionId = '550e8400-e29b-41d4-a716-446655440000'
+
 const checkIn = QuickCheckInInputSchema.parse({
-  submissionId: '550e8400-e29b-41d4-a716-446655440000',
+  submissionId,
   physical: 6,
   mental: 6,
   energy: 6,
@@ -60,13 +62,9 @@ function createRpcClient(options: {
         select: () => ({
           eq: () => ({
             eq: () => ({
-              order: () => ({
-                limit: () => ({
-                  maybeSingle: async () => ({
-                    data: options.interpretationRow ?? null,
-                    error: null,
-                  }),
-                }),
+              single: async () => ({
+                data: options.interpretationRow ?? null,
+                error: options.interpretationRow ? null : { code: 'PGRST116' },
               }),
             }),
           }),
@@ -98,9 +96,16 @@ describe('submitCheckInWithInterpretation', () => {
       expect(result.data.checkInId).toBe('770e8400-e29b-41d4-a716-446655440002')
       expect(result.data.idempotentReplay).toBe(false)
     }
+
+    expect(client.rpc).toHaveBeenCalledWith(
+      'submit_check_in_with_interpretation',
+      expect.objectContaining({
+        p_submission_id: submissionId,
+      })
+    )
   })
 
-  it('loads persisted interpretation on idempotent replay', async () => {
+  it('returns original stored interpretation on duplicate submission replay', async () => {
     const client = createRpcClient({
       rpcResult: {
         check_in_id: '770e8400-e29b-41d4-a716-446655440002',
@@ -111,7 +116,7 @@ describe('submitCheckInWithInterpretation', () => {
         id: '880e8400-e29b-41d4-a716-446655440003',
         proposed_mode: 'maintain',
         confidence: 0.7,
-        summary: 'Stored summary',
+        summary: 'Original stored summary',
         primary_action: interpretation.primaryAction,
         alternative_actions: [],
         avoid_for_now: ['Extra goals'],
@@ -126,13 +131,34 @@ describe('submitCheckInWithInterpretation', () => {
 
     const result = await submitCheckInWithInterpretation(client, {
       checkIn,
-      interpretation,
+      interpretation: {
+        ...interpretation,
+        summary: 'Would-be recomputed summary',
+      },
     })
 
     expect(result.ok).toBe(true)
     if (result.ok) {
       expect(result.data.idempotentReplay).toBe(true)
-      expect(result.data.summary).toBe('Stored summary')
+      expect(result.data.summary).toBe('Original stored summary')
+      expect(result.data.interpretationId).toBe('880e8400-e29b-41d4-a716-446655440003')
+    }
+  })
+
+  it('maps missing submission_id RPC errors to RPC_ERROR', async () => {
+    const client = createRpcClient({
+      rpcError: { message: 'submission_id is required' },
+    })
+
+    const result = await submitCheckInWithInterpretation(client, {
+      checkIn,
+      interpretation,
+    })
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.error.code).toBe('RPC_ERROR')
+      expect(result.error.message).toContain('submission_id is required')
     }
   })
 

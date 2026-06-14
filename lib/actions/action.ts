@@ -7,6 +7,7 @@ import {
   AcceptedActionSchema,
   actionError,
   actionSuccess,
+  buildActionPersistenceFields,
   fromDataError,
   type ActionResult,
 } from '@/lib/validation'
@@ -27,14 +28,19 @@ export async function acceptAction(
     return actionError('NOT_CONFIGURED', 'Supabase is not configured')
   }
 
-  const actionText = `${parsed.data.action.title}: ${parsed.data.action.description}`
+  const persistence = buildActionPersistenceFields(
+    parsed.data.action,
+    parsed.data.actionSource
+  )
 
   const result = await createActionRecord(client, {
     checkInId: parsed.data.checkInId,
     interpretationId: parsed.data.interpretationId,
     actionSource: parsed.data.actionSource,
-    actionText,
-    actionDomain: parsed.data.action.domain,
+    actionKey: persistence.actionKey,
+    actionPayload: persistence.actionPayload,
+    actionText: persistence.actionText,
+    actionDomain: persistence.actionDomain,
     modifiedFrom: parsed.data.modifiedFrom,
   })
 
@@ -45,10 +51,11 @@ export async function acceptAction(
   return actionSuccess(
     AcceptedActionSchema.parse({
       actionRecordId: result.data.id,
+      actionKey: persistence.actionKey,
       checkInId: parsed.data.checkInId,
       interpretationId: parsed.data.interpretationId,
       actionSource: parsed.data.actionSource,
-      action: parsed.data.action,
+      action: persistence.actionPayload,
       status: 'accepted',
     })
   )

@@ -44,9 +44,7 @@ export async function getInterpretationForCheckIn(
     .select('*')
     .eq('check_in_id', checkInId)
     .eq('user_id', authResult.data)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
+    .single()
 
   if (error) {
     return dataError('DATABASE_ERROR', error.message)

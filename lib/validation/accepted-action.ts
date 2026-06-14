@@ -14,6 +14,7 @@ export type AcceptActionInput = z.infer<typeof AcceptActionInputSchema>
 
 export const AcceptedActionSchema = z.object({
   actionRecordId: z.string().uuid(),
+  actionKey: z.string().min(1).max(120),
   checkInId: z.string().uuid(),
   interpretationId: z.string().uuid(),
   actionSource: ActionSourceSchema,

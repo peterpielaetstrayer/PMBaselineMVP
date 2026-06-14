@@ -1,5 +1,6 @@
 import type { Database } from '@/lib/supabase/database.types'
 import type { AcceptActionInput } from '@/lib/validation/accepted-action'
+import type { BaselineActionDTO } from '@/lib/validation/action'
 import { requireAuthenticatedUserId, type AuthenticatedSupabaseClient } from './session'
 import { verifyInterpretationOwnership } from './interpretations'
 import { dataError, type DataResult } from './types'
@@ -10,6 +11,8 @@ export interface CreateActionRecordInput {
   checkInId: string
   interpretationId: string
   actionSource: AcceptActionInput['actionSource']
+  actionKey: string
+  actionPayload: BaselineActionDTO
   actionText: string
   actionDomain: AcceptActionInput['action']['domain']
   modifiedFrom?: string | null
@@ -39,6 +42,8 @@ export async function createActionRecord(
       user_id: authResult.data,
       check_in_id: input.checkInId,
       interpretation_id: input.interpretationId,
+      action_key: input.actionKey,
+      action_payload: input.actionPayload,
       action_text: input.actionText,
       action_domain: input.actionDomain,
       action_source: input.actionSource,

@@ -46,6 +46,23 @@ describe('AcceptActionInputSchema', () => {
       })
     ).toThrow()
   })
+
+  it('rejects custom action payloads that fail BaselineActionSchema', () => {
+    expect(() =>
+      AcceptActionInputSchema.parse({
+        checkInId: '550e8400-e29b-41d4-a716-446655440000',
+        interpretationId: '660e8400-e29b-41d4-a716-446655440001',
+        actionSource: 'user',
+        action: {
+          id: '',
+          title: 'Stretch',
+          description: 'Two minute stretch.',
+          estimatedMinutes: 2,
+          domain: 'movement',
+        },
+      })
+    ).toThrow()
+  })
 })
 
 describe('ReflectionInputSchema', () => {

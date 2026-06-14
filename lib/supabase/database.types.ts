@@ -93,7 +93,7 @@ export interface Database {
         Row: {
           id: string
           user_id: string
-          submission_id: string | null
+          submission_id: string
           physical_score: number | null
           mental_score: number | null
           energy_score: number | null
@@ -112,7 +112,7 @@ export interface Database {
         Insert: {
           id?: string
           user_id: string
-          submission_id?: string | null
+          submission_id: string
           physical_score?: number | null
           mental_score?: number | null
           energy_score?: number | null
@@ -131,7 +131,7 @@ export interface Database {
         Update: {
           id?: string
           user_id?: string
-          submission_id?: string | null
+          submission_id?: string
           physical_score?: number | null
           mental_score?: number | null
           energy_score?: number | null
@@ -250,6 +250,8 @@ export interface Database {
           user_id: string
           check_in_id: string | null
           interpretation_id: string | null
+          action_key: string
+          action_payload: Json
           action_text: string
           action_domain: string
           action_source: string
@@ -265,6 +267,8 @@ export interface Database {
           user_id: string
           check_in_id?: string | null
           interpretation_id?: string | null
+          action_key: string
+          action_payload: Json
           action_text: string
           action_domain?: string
           action_source?: string
@@ -280,6 +284,8 @@ export interface Database {
           user_id?: string
           check_in_id?: string | null
           interpretation_id?: string | null
+          action_key?: string
+          action_payload?: Json
           action_text?: string
           action_domain?: string
           action_source?: string

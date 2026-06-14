@@ -1,5 +1,7 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { createActionRecord } from '@/lib/data/action-records'
+import { buildActionPersistenceFields } from '@/lib/validation/action-persistence'
+import { getInterpretationForCheckIn } from '@/lib/data/interpretations'
 import { createReflection } from '@/lib/data/reflections'
 import type { AuthenticatedSupabaseClient } from '@/lib/data/session'
 
@@ -22,9 +24,6 @@ function authClient(tableHandlers: Record<string, () => Promise<{ data: unknown;
 
       chain.select = () => chain
       chain.eq = () => chain
-      chain.order = () => chain
-      chain.limit = () => chain
-      chain.maybeSingle = terminal
       chain.single = terminal
       chain.insert = () => ({
         select: () => ({
@@ -37,6 +36,14 @@ function authClient(tableHandlers: Record<string, () => Promise<{ data: unknown;
   } as unknown as AuthenticatedSupabaseClient
 }
 
+const primaryAction = {
+  id: 'maintain-one-anchor',
+  title: 'Keep one anchor',
+  description: 'Complete one familiar routine.',
+  estimatedMinutes: 20,
+  domain: 'recovery' as const,
+}
+
 describe('createActionRecord', () => {
   it('rejects when interpretation is not owned by user/check-in', async () => {
     const client = authClient({
@@ -46,12 +53,15 @@ describe('createActionRecord', () => {
       }),
     })
 
+    const persistence = buildActionPersistenceFields(primaryAction, 'primary')
     const result = await createActionRecord(client, {
       checkInId: '770e8400-e29b-41d4-a716-446655440002',
       interpretationId: '880e8400-e29b-41d4-a716-446655440003',
       actionSource: 'primary',
-      actionText: 'Walk: Five minutes',
-      actionDomain: 'movement',
+      actionKey: persistence.actionKey,
+      actionPayload: persistence.actionPayload,
+      actionText: persistence.actionText,
+      actionDomain: persistence.actionDomain,
     })
 
     expect(result.ok).toBe(false)
@@ -60,7 +70,9 @@ describe('createActionRecord', () => {
     }
   })
 
-  it('creates action record when ownership checks pass', async () => {
+  it('creates action record with action_key and action_payload', async () => {
+    const persistence = buildActionPersistenceFields(primaryAction, 'primary')
+
     const client = authClient({
       interpretations: async () => ({
         data: { id: '880e8400-e29b-41d4-a716-446655440003' },
@@ -72,8 +84,10 @@ describe('createActionRecord', () => {
           user_id: 'user-123',
           check_in_id: '770e8400-e29b-41d4-a716-446655440002',
           interpretation_id: '880e8400-e29b-41d4-a716-446655440003',
-          action_text: 'Walk: Five minutes',
-          action_domain: 'movement',
+          action_key: persistence.actionKey,
+          action_payload: persistence.actionPayload,
+          action_text: persistence.actionText,
+          action_domain: persistence.actionDomain,
           action_source: 'primary',
           status: 'accepted',
         },
@@ -85,9 +99,36 @@ describe('createActionRecord', () => {
       checkInId: '770e8400-e29b-41d4-a716-446655440002',
       interpretationId: '880e8400-e29b-41d4-a716-446655440003',
       actionSource: 'primary',
-      actionText: 'Walk: Five minutes',
-      actionDomain: 'movement',
+      actionKey: persistence.actionKey,
+      actionPayload: persistence.actionPayload,
+      actionText: persistence.actionText,
+      actionDomain: persistence.actionDomain,
     })
+
+    expect(result.ok).toBe(true)
+    if (result.ok) {
+      expect(result.data.action_key).toBe('maintain-one-anchor')
+      expect(result.data.action_payload).toEqual(primaryAction)
+    }
+  })
+})
+
+describe('getInterpretationForCheckIn', () => {
+  it('loads the single interpretation for a check-in', async () => {
+    const client = authClient({
+      interpretations: async () => ({
+        data: {
+          id: '880e8400-e29b-41d4-a716-446655440003',
+          check_in_id: '770e8400-e29b-41d4-a716-446655440002',
+        },
+        error: null,
+      }),
+    })
+
+    const result = await getInterpretationForCheckIn(
+      client,
+      '770e8400-e29b-41d4-a716-446655440002'
+    )
 
     expect(result.ok).toBe(true)
   })
