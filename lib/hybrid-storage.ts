@@ -6,6 +6,12 @@ import { supabase, TABLES } from './supabase'
 import type { User, CheckIn, Milestone } from './types'
 import { storage as localStorage } from './storage'
 
+/**
+ * Legacy Supabase tables (users, checkins, milestones) are absent on the
+ * canonical schema. Keep app state on localStorage until lib/data is wired.
+ */
+const USE_LEGACY_SUPABASE_TABLES = false
+
 export class HybridStorage {
   private isAuthenticated = false
   private currentUserId: string | null = null
@@ -46,7 +52,7 @@ export class HybridStorage {
   async getUser(): Promise<User | null> {
     console.log('getUser called:', { isAuthenticated: this.isAuthenticated, currentUserId: this.currentUserId })
     
-    if (this.isAuthenticated && this.currentUserId) {
+    if (USE_LEGACY_SUPABASE_TABLES && this.isAuthenticated && this.currentUserId) {
       try {
         console.log('Attempting to get user from Supabase...')
         const { data, error } = await supabase
@@ -73,7 +79,7 @@ export class HybridStorage {
   }
 
   async setUser(user: User): Promise<void> {
-    if (this.isAuthenticated && this.currentUserId) {
+    if (USE_LEGACY_SUPABASE_TABLES && this.isAuthenticated && this.currentUserId) {
       try {
         const { error } = await supabase
           .from(TABLES.USERS)
@@ -98,7 +104,7 @@ export class HybridStorage {
 
   // Check-ins Management
   async getCheckins(): Promise<CheckIn[]> {
-    if (this.isAuthenticated && this.currentUserId) {
+    if (USE_LEGACY_SUPABASE_TABLES && this.isAuthenticated && this.currentUserId) {
       try {
         const { data, error } = await supabase
           .from(TABLES.CHECKINS)
@@ -117,7 +123,7 @@ export class HybridStorage {
   }
 
   async addCheckin(checkin: CheckIn): Promise<void> {
-    if (this.isAuthenticated && this.currentUserId) {
+    if (USE_LEGACY_SUPABASE_TABLES && this.isAuthenticated && this.currentUserId) {
       try {
         const { error } = await supabase
           .from(TABLES.CHECKINS)
@@ -145,7 +151,7 @@ export class HybridStorage {
 
   // Milestone Management
   async getMilestone(): Promise<Milestone | null> {
-    if (this.isAuthenticated && this.currentUserId) {
+    if (USE_LEGACY_SUPABASE_TABLES && this.isAuthenticated && this.currentUserId) {
       try {
         const { data, error } = await supabase
           .from(TABLES.MILESTONES)
@@ -164,7 +170,7 @@ export class HybridStorage {
   }
 
   async setMilestone(milestone: Milestone): Promise<void> {
-    if (this.isAuthenticated && this.currentUserId) {
+    if (USE_LEGACY_SUPABASE_TABLES && this.isAuthenticated && this.currentUserId) {
       try {
         const { error } = await supabase
           .from(TABLES.MILESTONES)
