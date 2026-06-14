@@ -93,6 +93,7 @@ export interface Database {
         Row: {
           id: string
           user_id: string
+          submission_id: string | null
           physical_score: number | null
           mental_score: number | null
           energy_score: number | null
@@ -111,6 +112,7 @@ export interface Database {
         Insert: {
           id?: string
           user_id: string
+          submission_id?: string | null
           physical_score?: number | null
           mental_score?: number | null
           energy_score?: number | null
@@ -129,6 +131,7 @@ export interface Database {
         Update: {
           id?: string
           user_id?: string
+          submission_id?: string | null
           physical_score?: number | null
           mental_score?: number | null
           energy_score?: number | null
@@ -173,6 +176,9 @@ export interface Database {
           retrieved_context: Json
           user_disposition: string | null
           user_corrected_mode: string | null
+          engine_version: string | null
+          reason_codes: string[]
+          factors: string[]
           created_at: string
         }
         Insert: {
@@ -193,6 +199,9 @@ export interface Database {
           retrieved_context?: Json
           user_disposition?: string | null
           user_corrected_mode?: string | null
+          engine_version?: string | null
+          reason_codes?: string[]
+          factors?: string[]
           created_at?: string
         }
         Update: {
@@ -213,6 +222,9 @@ export interface Database {
           retrieved_context?: Json
           user_disposition?: string | null
           user_corrected_mode?: string | null
+          engine_version?: string | null
+          reason_codes?: string[]
+          factors?: string[]
           created_at?: string
         }
         Relationships: [
@@ -548,7 +560,37 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      submit_check_in_with_interpretation: {
+        Args: {
+          p_submission_id: string
+          p_physical_score: number
+          p_mental_score: number
+          p_energy_score: number
+          p_stress_score: number
+          p_sleep_score: number | null
+          p_food_status: string | null
+          p_hydration_status: string | null
+          p_movement_status: string | null
+          p_alcohol_or_substance_context: string | null
+          p_context_tags: string[]
+          p_heavy_or_important_text: string | null
+          p_optional_note: string | null
+          p_safety_level: string
+          p_proposed_mode: string
+          p_confidence: number
+          p_summary: string
+          p_primary_action: Json
+          p_alternative_actions: Json
+          p_avoid_for_now: string[]
+          p_reflection_prompt: string
+          p_safety: Json
+          p_source: string
+          p_engine_version: string
+          p_reason_codes: string[]
+          p_factors: string[]
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

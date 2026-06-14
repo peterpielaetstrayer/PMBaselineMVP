@@ -4,7 +4,9 @@ export type DataErrorCode =
   | 'AUTH_ERROR'
   | 'NOT_FOUND'
   | 'VALIDATION_ERROR'
+  | 'FORBIDDEN'
   | 'DATABASE_ERROR'
+  | 'RPC_ERROR'
 
 export interface DataError {
   code: DataErrorCode

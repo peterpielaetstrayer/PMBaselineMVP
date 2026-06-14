@@ -7,6 +7,31 @@ export {
   updateBaselineProfile,
 } from './baseline-profiles'
 
+export type { CheckIn } from './check-ins'
+export { getCheckInById } from './check-ins'
+
+export type { Interpretation } from './interpretations'
+export {
+  getInterpretationById,
+  getInterpretationForCheckIn,
+  verifyInterpretationOwnership,
+} from './interpretations'
+
+export type { ActionRecord, CreateActionRecordInput } from './action-records'
+export { createActionRecord, getActionRecordById } from './action-records'
+
+export type { Reflection } from './reflections'
+export { createReflection } from './reflections'
+
+export type {
+  SubmitCheckInRpcResult,
+  SubmitCheckInWithInterpretationInput,
+} from './submit-check-in'
+export {
+  rowToStoredInterpretation,
+  submitCheckInWithInterpretation,
+} from './submit-check-in'
+
 export type { Profile, ProfileUpdateInput } from './profiles'
 export { getProfile, updateProfile } from './profiles'
 
