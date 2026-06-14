@@ -4,6 +4,8 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import { getBrowserClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
+const AUTH_INIT_TIMEOUT_MS = 8000
+
 interface AuthContextType {
   user: User | null
   loading: boolean
@@ -20,30 +22,68 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    console.log('[auth] start')
+
     const supabase = getBrowserClient()
     if (!supabase) {
+      console.log('[auth] done', 'no-client')
       setLoading(false)
       return
     }
 
-    const getInitialSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      setUser(session?.user ?? null)
-      setLoading(false)
+    let loadingCleared = false
+    const clearLoading = (via: string) => {
+      if (!loadingCleared) {
+        loadingCleared = true
+        console.log('[auth] done', via)
+        setLoading(false)
+      }
     }
 
-    getInitialSession()
+    const timeoutId = window.setTimeout(() => {
+      console.error('[auth] error', 'initial session check timed out')
+      clearLoading('timeout')
+    }, AUTH_INIT_TIMEOUT_MS)
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('[auth] session result', {
+        source: 'onAuthStateChange',
+        event,
+        hasUser: !!session?.user,
+      })
       setUser(session?.user ?? null)
-      setLoading(false)
+      clearLoading(`onAuthStateChange:${event}`)
     })
 
-    return () => subscription.unsubscribe()
+    ;(async () => {
+      try {
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession()
+        console.log('[auth] session result', {
+          source: 'getSession',
+          hasUser: !!session?.user,
+          error: error?.message ?? null,
+        })
+        if (error) {
+          console.error('[auth] error', error)
+        }
+        setUser(session?.user ?? null)
+      } catch (error) {
+        console.error('[auth] error', error)
+      } finally {
+        window.clearTimeout(timeoutId)
+        clearLoading('getSession')
+      }
+    })()
+
+    return () => {
+      window.clearTimeout(timeoutId)
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signIn = async (email: string, password: string) => {
