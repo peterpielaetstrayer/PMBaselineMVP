@@ -3,32 +3,11 @@
  * Use `@/lib/supabase/client` and `@/lib/supabase/database.types` for new code.
  * Do not add new writes to legacy tables (users, checkins, milestones, user_minimums).
  */
-import { createClient } from '@supabase/supabase-js'
+import { getBrowserClient } from '@/lib/supabase/client'
 
-// Only create client on client side
-let supabase: any = null
-
-if (typeof window !== 'undefined') {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  
-  console.log('Supabase config:', { 
-    hasUrl: !!supabaseUrl, 
-    hasKey: !!supabaseAnonKey,
-    url: supabaseUrl ? `${supabaseUrl.substring(0, 20)}...` : 'none'
-  })
-  
-  if (supabaseUrl && supabaseAnonKey) {
-    try {
-      supabase = createClient(supabaseUrl, supabaseAnonKey)
-      console.log('Supabase client created successfully')
-    } catch (error) {
-      console.error('Failed to create Supabase client:', error)
-    }
-  } else {
-    console.log('Supabase environment variables not configured, using localStorage only')
-  }
-}
+// Reuse the canonical browser singleton — do not create a second GoTrueClient here.
+// Typed as any so legacy hybrid-storage can still target old table names.
+const supabase: any = typeof window !== 'undefined' ? getBrowserClient() : null
 
 export { supabase }
 
@@ -43,8 +22,11 @@ export const TABLES = {
 // Helper function to get current user
 export const getCurrentUser = async () => {
   if (!supabase) return null
-  
-  const { data: { user }, error } = await supabase.auth.getUser()
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
   if (error) {
     console.error('Error getting user:', error)
     return null
@@ -55,8 +37,11 @@ export const getCurrentUser = async () => {
 // Helper function to get user session
 export const getSession = async () => {
   if (!supabase) return null
-  
-  const { data: { session }, error } = await supabase.auth.getSession()
+
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession()
   if (error) {
     console.error('Error getting session:', error)
     return null
