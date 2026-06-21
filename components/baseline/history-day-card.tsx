@@ -72,7 +72,7 @@ export function HistoryDayCard({ item }: HistoryDayCardProps) {
 
       <Link
         href={item.linkPath}
-        className="mt-4 inline-block text-sm font-medium text-ocean-deep hover:underline"
+        className="mt-4 inline-block text-sm font-medium text-ocean-deep hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-deep/40 focus-visible:ring-offset-2 rounded-sm"
       >
         {item.status === "complete"
           ? "View result"

@@ -85,3 +85,43 @@
 - Hiding why recommendations were made.
 
 **Implications:** The database includes fields for user disposition, corrected mode, memory status, and source record IDs.
+
+## 2026-06-14 — Canonical loop is Supabase-first
+
+**Decision:** The canonical PMBaseline loop (check-in → interpretation → action → reflection) persists exclusively through Supabase server actions and RLS-protected tables.
+
+**Why:** Real multi-device use, inspectable records, and a clear boundary before AI and memory features.
+
+**Implications:** Canonical routes must not read or write legacy `localStorage`, `hybridStorage`, or legacy `AppState`.
+
+## 2026-06-14 — Legacy app isolated at `/legacy`
+
+**Decision:** The old habit/minimum app remains available at `/legacy` with a retirement notice. Root `/` redirects to `/today` or `/login`.
+
+**Why:** Preserve temporary access without letting the legacy surface remain the primary product entry.
+
+**Implications:** New feature work targets canonical routes only. Legacy code is not deleted until explicitly retired.
+
+## 2026-06-14 — Deterministic engine is permanent fallback
+
+**Decision:** The deterministic interpretation engine remains the default provider and permanent fallback. Stored interpretations are never recomputed on read paths.
+
+**Why:** The product must work without AI; AI output must be safely replaceable.
+
+**Implications:** Result, reflect, and history pages load stored records only. Phase 3 adds a bounded AI provider, not a chatbot replacement for the engine.
+
+## 2026-06-14 — No AI until the non-AI loop is stable
+
+**Decision:** Phase 3 AI work starts only after Phase 2.5 polish confirms the non-AI MVP is stable for daily personal use.
+
+**Why:** AI on an unstable loop creates untrustworthy recommendations and hard-to-debug failures.
+
+**Implications:** Phase 3 is AI-readiness and a structured adapter layer — not immediate random AI injection.
+
+## 2026-06-14 — Reflection completes the first MVP loop
+
+**Decision:** A check-in loop is considered complete when the user accepts a right-sized action and saves a reflection. History surfaces partial loops with links to continue.
+
+**Why:** Reflection closes the learning loop without requiring analytics, streaks, or AI synthesis in MVP.
+
+**Implications:** Action records mark `completed` after reflection submit. One reflection per check-in; idempotent replay returns the existing reflection.

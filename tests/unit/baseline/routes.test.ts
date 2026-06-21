@@ -7,6 +7,7 @@ describe('baseline routes', () => {
     expect(BASELINE_ROUTES.today).toBe('/today')
     expect(BASELINE_ROUTES.history).toBe('/history')
     expect(BASELINE_ROUTES.legacy).toBe('/legacy')
+    expect(BASELINE_ROUTES.login).toBe('/login')
     expect(BASELINE_ROUTES.root).toBe('/')
   })
 

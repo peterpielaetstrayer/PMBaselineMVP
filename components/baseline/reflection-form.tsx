@@ -9,10 +9,16 @@ import {
   type ReflectionFormState,
 } from "@/lib/baseline/reflection-form"
 import { BASELINE_ROUTES } from "@/lib/baseline/routes"
+import {
+  formatActionErrorForUser,
+  isDuplicateReflectionError,
+} from "@/lib/baseline/user-messages"
 import { ReflectionEffectSchema } from "@/lib/validation/enums"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { FormErrorBanner } from "./form-error-banner"
 import { ScoreInput } from "./score-input"
 
 interface ReflectionFormProps {
@@ -22,6 +28,10 @@ interface ReflectionFormProps {
 }
 
 const EFFECT_OPTIONS = ReflectionEffectSchema.options
+
+function formatEffectLabel(effect: string): string {
+  return effect.replace(/_/g, " ")
+}
 
 export function ReflectionForm({
   checkInId,
@@ -45,6 +55,8 @@ export function ReflectionForm({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
+    if (isSubmitting) return
+
     setIsSubmitting(true)
     setError(null)
 
@@ -55,10 +67,15 @@ export function ReflectionForm({
 
     const result = await submitReflection(payload)
 
-    setIsSubmitting(false)
-
     if (!result.ok) {
-      setError(result.error.message)
+      if (isDuplicateReflectionError(result.error)) {
+        router.replace(BASELINE_ROUTES.today)
+        router.refresh()
+        return
+      }
+
+      setError(formatActionErrorForUser(result.error))
+      setIsSubmitting(false)
       return
     }
 
@@ -67,14 +84,14 @@ export function ReflectionForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6" aria-busy={isSubmitting}>
       <div className="space-y-2">
         <h1 className="text-2xl font-bold text-navy-text">
-          What happened after the action?
+          What happened after the move?
         </h1>
         <p className="text-sm leading-relaxed text-navy-text/70">
-          A quick note — not a grade. This helps PMBaseline learn what supports
-          your baseline over time.
+          A quick note — not a grade. This helps you notice what protects your
+          baseline over time.
         </p>
         {reflectionPrompt ? (
           <p className="rounded-lg border border-ocean-light/50 bg-ocean-light/15 px-3 py-2 text-sm text-navy-text/80">
@@ -83,22 +100,31 @@ export function ReflectionForm({
         ) : null}
       </div>
 
-      <div className="space-y-3">
-        <Label className="text-navy-text">How did it land?</Label>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <fieldset className="space-y-3">
+        <legend className="text-sm font-medium text-navy-text">
+          How did it land?
+        </legend>
+        <div
+          className="grid grid-cols-2 gap-2 sm:grid-cols-4"
+          role="radiogroup"
+          aria-label="How did it land?"
+        >
           {EFFECT_OPTIONS.map((effect) => (
             <Button
               key={effect}
               type="button"
+              role="radio"
+              aria-checked={state.effect === effect}
               variant={state.effect === effect ? "default" : "outline"}
-              className="capitalize"
+              className="capitalize focus-visible:ring-2 focus-visible:ring-ocean-deep/40"
+              disabled={isSubmitting}
               onClick={() => update("effect", effect)}
             >
-              {effect}
+              {formatEffectLabel(effect)}
             </Button>
           ))}
         </div>
-      </div>
+      </fieldset>
 
       <div className="space-y-2">
         <Label htmlFor="what-changed">What changed?</Label>
@@ -108,6 +134,7 @@ export function ReflectionForm({
           onChange={(e) => update("whatChanged", e.target.value)}
           placeholder="Even a small shift counts."
           rows={2}
+          disabled={isSubmitting}
         />
       </div>
 
@@ -119,6 +146,7 @@ export function ReflectionForm({
           onChange={(e) => update("whatWasProtected", e.target.value)}
           placeholder="Energy, mood, relationships, baseline..."
           rows={2}
+          disabled={isSubmitting}
         />
       </div>
 
@@ -130,18 +158,25 @@ export function ReflectionForm({
           onChange={(e) => update("lesson", e.target.value)}
           placeholder="Optional note for future you."
           rows={2}
+          disabled={isSubmitting}
         />
       </div>
 
       <div className="space-y-3 rounded-xl border border-ocean-light/40 bg-white/70 p-4">
-        <label className="flex items-center gap-2 text-sm text-navy-text">
-          <input
-            type="checkbox"
+        <div className="flex items-start gap-3">
+          <Checkbox
+            id="include-score"
             checked={includeScore}
-            onChange={(e) => setIncludeScore(e.target.checked)}
+            disabled={isSubmitting}
+            onCheckedChange={(checked) => setIncludeScore(checked === true)}
           />
-          Add a final baseline score for today (optional)
-        </label>
+          <Label
+            htmlFor="include-score"
+            className="text-sm font-normal leading-snug text-navy-text"
+          >
+            Add a final baseline score for today (optional)
+          </Label>
+        </div>
         {includeScore ? (
           <ScoreInput
             id="final-baseline-score"
@@ -154,15 +189,14 @@ export function ReflectionForm({
         ) : null}
       </div>
 
-      {error ? (
-        <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {error}
-        </p>
-      ) : null}
+      {error ? <FormErrorBanner message={error} /> : null}
 
       <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
         {isSubmitting ? "Saving reflection..." : "Save reflection"}
       </Button>
+      <p className="text-center text-xs text-navy-text/55">
+        You can reflect later from history if you need to step away first.
+      </p>
     </form>
   )
 }

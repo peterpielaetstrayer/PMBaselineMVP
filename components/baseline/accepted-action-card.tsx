@@ -35,11 +35,12 @@ export function AcceptedActionCard({
       reflectionFollowUp.kind === "reflect" ? (
         <div className="mt-5 space-y-2">
           <p className="text-sm text-navy-text/70">
-            Do this next, then come back and reflect on what it protected.
+            When you are ready, reflect on what this move protected.
           </p>
           <Button asChild className="w-full sm:w-auto">
             <Link href={reflectionFollowUp.reflectPath}>Reflect on this</Link>
           </Button>
+          <p className="text-xs text-navy-text/55">You can reflect later from history too.</p>
         </div>
       ) : null}
 

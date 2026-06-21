@@ -13,6 +13,7 @@ import { createClient } from '@/lib/supabase/server'
 
 export interface HistoryWorkspace {
   items: HistoryItem[]
+  loadUnavailable: boolean
 }
 
 export async function loadHistoryWorkspaceWithClient(
@@ -21,7 +22,10 @@ export async function loadHistoryWorkspaceWithClient(
 ): Promise<HistoryWorkspace> {
   const checkInsResult = await getRecentCheckInsForUser(client, limit)
   if (!checkInsResult.ok) {
-    return { items: [] }
+    if (checkInsResult.error.code === 'NOT_AUTHENTICATED') {
+      return { items: [], loadUnavailable: false }
+    }
+    return { items: [], loadUnavailable: true }
   }
 
   const checkInIds = checkInsResult.data.map((row) => row.id)
@@ -40,7 +44,7 @@ export async function loadHistoryWorkspaceWithClient(
     reflections: reflectionsResult.ok ? reflectionsResult.data : [],
   })
 
-  return { items }
+  return { items, loadUnavailable: false }
 }
 
 export async function loadHistoryWorkspace(limit = 20): Promise<HistoryWorkspace> {

@@ -1,4 +1,6 @@
+import Link from "next/link"
 import { LegacyApp } from "@/components/legacy/legacy-app"
+import { BASELINE_ROUTES } from "@/lib/baseline/routes"
 
 export default function LegacyPage() {
   return (
@@ -9,9 +11,9 @@ export default function LegacyPage() {
       >
         Legacy app — this is the old habit/minimum experience and will be retired.
         Use{" "}
-        <a href="/today" className="font-medium underline">
-          /today
-        </a>{" "}
+        <Link href={BASELINE_ROUTES.today} className="font-medium underline">
+          Today
+        </Link>{" "}
         for the canonical PMBaseline loop.
       </div>
       <LegacyApp />

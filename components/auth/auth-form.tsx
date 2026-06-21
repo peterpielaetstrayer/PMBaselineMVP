@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
+import { BASELINE_ROUTES } from "@/lib/baseline/routes"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -45,12 +46,13 @@ export function AuthForm({
       return
     }
 
-    router.replace("/today")
+    router.replace(BASELINE_ROUTES.today)
     router.refresh()
   }
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isLoading) return
     if (!email || !password) {
       toast({
         title: "Error",
@@ -89,6 +91,7 @@ export function AuthForm({
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isLoading) return
     if (!email || !password || !name || !confirmPassword) {
       toast({
         title: "Error",

@@ -1,7 +1,11 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { createActionRecord } from '@/lib/data/action-records'
+import {
+  createActionRecord,
+  getActionRecordForCheckIn,
+} from '@/lib/data/action-records'
+import { actionRecordToBaselineAction } from '@/lib/baseline/action-record-view'
 import {
   AcceptActionInputSchema,
   AcceptedActionSchema,
@@ -26,6 +30,25 @@ export async function acceptAction(
     client = await createClient()
   } catch {
     return actionError('NOT_CONFIGURED', 'Supabase is not configured')
+  }
+
+  const existing = await getActionRecordForCheckIn(client, {
+    checkInId: parsed.data.checkInId,
+    interpretationId: parsed.data.interpretationId,
+  })
+
+  if (existing.ok) {
+    return actionSuccess(
+      AcceptedActionSchema.parse({
+        actionRecordId: existing.data.id,
+        actionKey: existing.data.action_key,
+        checkInId: parsed.data.checkInId,
+        interpretationId: parsed.data.interpretationId,
+        actionSource: existing.data.action_source,
+        action: actionRecordToBaselineAction(existing.data),
+        status: 'accepted',
+      })
+    )
   }
 
   const persistence = buildActionPersistenceFields(

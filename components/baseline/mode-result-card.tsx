@@ -44,8 +44,9 @@ export function ModeResultCard({ interpretation }: ModeResultCardProps) {
       ) : null}
 
       {interpretation.reflectionPrompt ? (
-        <p className="text-sm italic text-navy-text/65">
-          Later, reflect on: {interpretation.reflectionPrompt}
+        <p className="text-sm text-navy-text/65">
+          <span className="font-medium text-navy-text/75">Reflect later:</span>{" "}
+          {interpretation.reflectionPrompt}
         </p>
       ) : null}
     </section>

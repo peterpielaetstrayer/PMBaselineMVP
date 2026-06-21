@@ -44,5 +44,19 @@ describe('root and legacy routing', () => {
     )
     expect(source).toContain('BASELINE_ROUTES.today')
     expect(source).toContain('BASELINE_ROUTES.history')
+    expect(source).toContain('BASELINE_ROUTES.login')
+  })
+
+  it('canonical forms use user-facing error formatting', () => {
+    const files = [
+      'components/baseline/quick-check-in-form.tsx',
+      'components/baseline/reflection-form.tsx',
+      'components/baseline/action-choice-list.tsx',
+    ]
+
+    for (const file of files) {
+      const source = readFileSync(join(projectRoot, file), 'utf8')
+      expect(source).toContain('formatActionErrorForUser')
+    }
   })
 })

@@ -63,6 +63,35 @@ describe('loadHistoryWorkspaceWithClient', () => {
     )
 
     expect(workspace.items).toEqual([])
+    expect(workspace.loadUnavailable).toBe(false)
+  })
+
+  it('marks load unavailable on database errors', async () => {
+    const workspace = await loadHistoryWorkspaceWithClient({
+      auth: {
+        getUser: async () => ({
+          data: { user: { id: 'user-123' } },
+          error: null,
+        }),
+      },
+      from: () => {
+        const chain: Record<string, unknown> = {}
+        chain.select = () => chain
+        chain.eq = () => chain
+        chain.order = () => chain
+        chain.limit = () => chain
+        chain.then = (resolve: (value: unknown) => void) => {
+          resolve({
+            data: null,
+            error: { message: 'database unavailable' },
+          })
+        }
+        return chain
+      },
+    } as never)
+
+    expect(workspace.items).toEqual([])
+    expect(workspace.loadUnavailable).toBe(true)
   })
 
   it('composes stored records without recomputing interpretation', async () => {
@@ -101,6 +130,7 @@ describe('loadHistoryWorkspaceWithClient', () => {
     expect(workspace.items[0]?.status).toBe('complete')
     expect(workspace.items[0]?.summary).toBe('Keep what is working.')
     expect(workspace.items[0]?.acceptedActionTitle).toBe('Protect sleep window')
+    expect(workspace.loadUnavailable).toBe(false)
   })
 })
 

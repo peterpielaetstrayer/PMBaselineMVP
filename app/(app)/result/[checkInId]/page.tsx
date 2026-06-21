@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { AcceptedActionCard } from "@/components/baseline/accepted-action-card"
 import { ActionChoiceList } from "@/components/baseline/action-choice-list"
 import { ModeResultCard } from "@/components/baseline/mode-result-card"
+import { PageBackLink } from "@/components/baseline/page-back-link"
 import { resolveResultActionSectionView } from "@/lib/baseline/result-action-section"
 import { resolveResultReflectionFollowUp } from "@/lib/baseline/result-reflection-section"
 import { BASELINE_ROUTES } from "@/lib/baseline/routes"
@@ -29,12 +30,7 @@ export default async function ResultPage({ params }: ResultPageProps) {
 
   return (
     <div className="mx-auto max-w-2xl space-y-8 px-4 py-8">
-      <Link
-        href={BASELINE_ROUTES.today}
-        className="inline-block text-sm text-ocean-deep hover:underline"
-      >
-        ← Back to today
-      </Link>
+      <PageBackLink href={BASELINE_ROUTES.today} label="Back to today" />
 
       <ModeResultCard interpretation={result.interpretation} />
 

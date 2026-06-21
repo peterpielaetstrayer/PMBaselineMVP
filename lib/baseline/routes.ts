@@ -1,5 +1,6 @@
 export const BASELINE_ROUTES = {
   root: '/',
+  login: '/login',
   today: '/today',
   history: '/history',
   checkIn: '/check-in',

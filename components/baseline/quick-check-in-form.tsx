@@ -11,11 +11,13 @@ import {
   resolveCheckInResultPath,
   type QuickCheckInFormState,
 } from "@/lib/baseline/check-in-form"
+import { formatActionErrorForUser } from "@/lib/baseline/user-messages"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { FormErrorBanner } from "./form-error-banner"
 import { ScoreInput } from "./score-input"
 
 export function QuickCheckInForm() {
@@ -38,6 +40,8 @@ export function QuickCheckInForm() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
+    if (isSubmitting) return
+
     setIsSubmitting(true)
     setError(null)
 
@@ -48,10 +52,9 @@ export function QuickCheckInForm() {
 
     const result = await submitCheckIn(payload)
 
-    setIsSubmitting(false)
-
     if (!result.ok) {
-      setError(result.error.message)
+      setError(formatActionErrorForUser(result.error))
+      setIsSubmitting(false)
       return
     }
 
@@ -59,12 +62,12 @@ export function QuickCheckInForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-8" aria-busy={isSubmitting}>
       <div className="space-y-2">
         <h1 className="text-2xl font-bold text-navy-text">Where are you right now?</h1>
         <p className="text-sm leading-relaxed text-navy-text/70">
-          A quick read on your state — not a medical form. Slide to what feels
-          true enough for today.
+          A quick read on your state — not a scorecard. Slide to what feels true
+          enough for today.
         </p>
       </div>
 
@@ -105,33 +108,48 @@ export function QuickCheckInForm() {
         />
       </div>
 
-      <div className="space-y-3 rounded-xl border border-sand-neutral/60 bg-sand-neutral/20 p-4">
-        <p className="text-sm font-medium text-navy-text">Safety check</p>
-        <label className="flex items-start gap-3 text-sm text-navy-text/80">
+      <fieldset className="space-y-3 rounded-xl border border-sand-neutral/60 bg-sand-neutral/20 p-4">
+        <legend className="px-1 text-sm font-medium text-navy-text">
+          Safety check
+        </legend>
+        <div className="flex items-start gap-3">
           <Checkbox
+            id="urgent-risk"
             checked={state.reportsUrgentRisk}
             onCheckedChange={(checked) =>
               update("reportsUrgentRisk", checked === true)
             }
           />
-          <span>I need immediate help or feel at urgent risk of harm</span>
-        </label>
-        <label className="flex items-start gap-3 text-sm text-navy-text/80">
+          <Label
+            htmlFor="urgent-risk"
+            className="text-sm font-normal leading-snug text-navy-text/80"
+          >
+            I need immediate help or feel at urgent risk of harm
+          </Label>
+        </div>
+        <div className="flex items-start gap-3">
           <Checkbox
+            id="need-support"
             checked={state.reportsNeedForSupport}
             onCheckedChange={(checked) =>
               update("reportsNeedForSupport", checked === true)
             }
           />
-          <span>I could use extra support today (not an emergency)</span>
-        </label>
-      </div>
+          <Label
+            htmlFor="need-support"
+            className="text-sm font-normal leading-snug text-navy-text/80"
+          >
+            I could use extra support today (not an emergency)
+          </Label>
+        </div>
+      </fieldset>
 
       <Button
         type="button"
         variant="ghost"
-        className="px-0 text-ocean-deep"
+        className="px-0 text-ocean-deep focus-visible:ring-2 focus-visible:ring-ocean-deep/40"
         onClick={() => setShowOptional((current) => !current)}
+        aria-expanded={showOptional}
       >
         {showOptional ? "Hide optional details" : "Add optional details"}
       </Button>
@@ -216,11 +234,7 @@ export function QuickCheckInForm() {
         </div>
       ) : null}
 
-      {error ? (
-        <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {error}
-        </p>
-      ) : null}
+      {error ? <FormErrorBanner message={error} /> : null}
 
       <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
         {isSubmitting ? "Finding your next move..." : "See my right-sized move"}

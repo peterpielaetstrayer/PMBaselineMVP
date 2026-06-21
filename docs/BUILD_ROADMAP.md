@@ -98,7 +98,7 @@ Deliverables:
 
 ### Phase 2.4 — History and legacy isolation
 
-Status: **current increment**.
+Status: **complete**.
 
 Deliverables:
 
@@ -108,15 +108,25 @@ Deliverables:
 - root `/` redirects to `/today` or `/login`;
 - legacy app isolated at `/legacy` with retirement notice.
 
-### Phase 2.5 — Polish and Phase 3 readiness
+### Phase 2.5 — MVP polish and hardening
 
-Status: **next increment**.
+Status: **current increment**.
 
 Deliverables:
 
-- UX polish across canonical loop and history;
-- edge-case hardening and empty states;
-- documentation and test coverage for Phase 3 AI layer handoff.
+- full-loop UX pass (copy, spacing, empty/unavailable states, mobile layout);
+- user-facing error messages and graceful not-found states;
+- duplicate-submit protection on check-in, action accept, reflection, and auth;
+- accessibility pass on forms, sliders, navigation, and history cards;
+- route helper consolidation and canonical/legacy isolation verification;
+- server loader consistency (no recompute, no localStorage);
+- smoke-test checklist and Phase 2 decision log updates.
+
+Success criteria:
+
+- a signed-in user can complete the full loop repeatedly without confusing duplicates or raw errors;
+- canonical routes feel calm and mobile-friendly for daily personal use;
+- documentation clearly marks Phase 3 as bounded AI on a stable non-AI foundation.
 
 ### Phase 2 completion criteria
 
@@ -222,12 +232,11 @@ Success condition:
 
 After pulling `master` in Cursor:
 
-1. run the app locally and sign in at `/login`;
-2. verify `/today` loads the authenticated workspace shell;
-3. complete a check-in loop and confirm `/history` shows stored records;
-4. verify `/` redirects to `/today` when signed in and `/login` when signed out;
-5. use `/legacy` only for temporary access to the old app until it is retired.
+1. run through `docs/SMOKE_TEST_CHECKLIST.md` on a local build;
+2. verify the full loop feels stable on mobile;
+3. confirm history and today show stored state without recomputing;
+4. begin Phase 3 only after Phase 2.5 success criteria are met.
 
 Reason:
 
-Phase 2.0–2.3 persistence and canonical loop UI are in place. Phase 2.4 adds history and moves the legacy app off the root path before Phase 2.5 polish and Phase 3 AI work.
+The non-AI canonical loop is feature-complete through Phase 2.4. Phase 2.5 hardens it for real use before adding bounded AI interpretation.

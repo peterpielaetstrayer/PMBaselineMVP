@@ -2,7 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { markActionRecordCompleted } from '@/lib/data/action-records'
-import { createReflection } from '@/lib/data/reflections'
+import { createReflection, getReflectionForCheckIn } from '@/lib/data/reflections'
+import { reflectionRowToStored } from '@/lib/baseline/reflection-form'
 import {
   ReflectionInputSchema,
   StoredReflectionSchema,
@@ -26,6 +27,16 @@ export async function submitReflection(
     client = await createClient()
   } catch {
     return actionError('NOT_CONFIGURED', 'Supabase is not configured')
+  }
+
+  const existingReflection = await getReflectionForCheckIn(
+    client,
+    parsed.data.checkInId
+  )
+  if (existingReflection.ok) {
+    return actionSuccess(
+      StoredReflectionSchema.parse(reflectionRowToStored(existingReflection.data))
+    )
   }
 
   const result = await createReflection(client, parsed.data)

@@ -6,6 +6,8 @@ import {
   buildAcceptActionInput,
   buildCustomActionInput,
 } from "@/lib/baseline/action-selection"
+import { BASELINE_ROUTES } from "@/lib/baseline/routes"
+import { formatActionErrorForUser } from "@/lib/baseline/user-messages"
 import type { BaselineActionDTO } from "@/lib/validation/action"
 import type { StoredInterpretation } from "@/lib/validation/interpretation"
 import type { AcceptedAction } from "@/lib/validation/accepted-action"
@@ -22,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { AcceptedActionCard } from "./accepted-action-card"
-import { BASELINE_ROUTES } from "@/lib/baseline/routes"
+import { FormErrorBanner } from "./form-error-banner"
 
 interface ActionChoiceListProps {
   interpretation: StoredInterpretation
@@ -40,10 +42,14 @@ export function ActionChoiceList({ interpretation }: ActionChoiceListProps) {
   const [customDomain, setCustomDomain] =
     useState<BaselineActionDTO["domain"]>("custom")
 
+  const isBusy = pendingKey !== null
+
   const accept = async (
     actionSource: "primary" | "alternative" | "user",
     action: BaselineActionDTO
   ) => {
+    if (isBusy) return
+
     setPendingKey(action.id)
     setError(null)
 
@@ -59,7 +65,7 @@ export function ActionChoiceList({ interpretation }: ActionChoiceListProps) {
     setPendingKey(null)
 
     if (!result.ok) {
-      setError(result.error.message)
+      setError(formatActionErrorForUser(result.error))
       return
     }
 
@@ -67,6 +73,8 @@ export function ActionChoiceList({ interpretation }: ActionChoiceListProps) {
   }
 
   const acceptCustom = async () => {
+    if (isBusy) return
+
     if (!customTitle.trim() || !customDescription.trim()) {
       setError("Add a short title and description for your custom move.")
       return
@@ -96,7 +104,7 @@ export function ActionChoiceList({ interpretation }: ActionChoiceListProps) {
   }
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-4" aria-busy={isBusy}>
       <div>
         <h3 className="text-lg font-semibold text-navy-text">
           Choose a right-sized next move
@@ -107,16 +115,13 @@ export function ActionChoiceList({ interpretation }: ActionChoiceListProps) {
         </p>
       </div>
 
-      {error ? (
-        <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {error}
-        </p>
-      ) : null}
+      {error ? <FormErrorBanner message={error} /> : null}
 
       <ActionOptionCard
         label="Suggested next move"
         action={interpretation.primaryAction}
         pending={pendingKey === interpretation.primaryAction.id}
+        disabled={isBusy}
         onAccept={() => accept("primary", interpretation.primaryAction)}
       />
 
@@ -126,6 +131,7 @@ export function ActionChoiceList({ interpretation }: ActionChoiceListProps) {
           label="Alternative"
           action={action}
           pending={pendingKey === action.id}
+          disabled={isBusy}
           onAccept={() => accept("alternative", action)}
         />
       ))}
@@ -135,6 +141,7 @@ export function ActionChoiceList({ interpretation }: ActionChoiceListProps) {
           type="button"
           variant="outline"
           className="w-full"
+          disabled={isBusy}
           onClick={() => setShowCustom(true)}
         >
           Choose a different move
@@ -149,6 +156,7 @@ export function ActionChoiceList({ interpretation }: ActionChoiceListProps) {
               value={customTitle}
               onChange={(e) => setCustomTitle(e.target.value)}
               placeholder="e.g. Drink water"
+              disabled={isBusy}
             />
           </div>
           <div className="space-y-2">
@@ -159,17 +167,19 @@ export function ActionChoiceList({ interpretation }: ActionChoiceListProps) {
               onChange={(e) => setCustomDescription(e.target.value)}
               placeholder="Keep it small and specific."
               rows={3}
+              disabled={isBusy}
             />
           </div>
           <div className="space-y-2">
-            <Label>Domain</Label>
+            <Label htmlFor="custom-domain">Domain</Label>
             <Select
               value={customDomain}
+              disabled={isBusy}
               onValueChange={(value) =>
                 setCustomDomain(value as BaselineActionDTO["domain"])
               }
             >
-              <SelectTrigger>
+              <SelectTrigger id="custom-domain">
                 <SelectValue placeholder="Choose a domain" />
               </SelectTrigger>
               <SelectContent>
@@ -184,10 +194,10 @@ export function ActionChoiceList({ interpretation }: ActionChoiceListProps) {
           <Button
             type="button"
             className="w-full"
-            disabled={Boolean(pendingKey)}
+            disabled={isBusy}
             onClick={acceptCustom}
           >
-            {pendingKey ? "Saving..." : "Accept this move"}
+            {isBusy ? "Saving..." : "Accept this move"}
           </Button>
         </div>
       )}
@@ -199,11 +209,13 @@ function ActionOptionCard({
   label,
   action,
   pending,
+  disabled,
   onAccept,
 }: {
   label: string
   action: BaselineActionDTO
   pending: boolean
+  disabled: boolean
   onAccept: () => void
 }) {
   return (
@@ -223,7 +235,8 @@ function ActionOptionCard({
       <Button
         type="button"
         className="mt-4 w-full"
-        disabled={pending}
+        disabled={disabled}
+        aria-busy={pending}
         onClick={onAccept}
       >
         {pending ? "Saving..." : "Accept this move"}

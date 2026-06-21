@@ -43,6 +43,11 @@ export function ScoreInput({
         value={[value]}
         onValueChange={(values) => onChange(values[0] ?? 0)}
         aria-label={label}
+        aria-valuemin={0}
+        aria-valuemax={10}
+        aria-valuenow={value}
+        aria-valuetext={`${value} out of 10`}
+        className="touch-none"
       />
       <div className="flex justify-between text-[11px] text-navy-text/50">
         <span>{lowLabel}</span>

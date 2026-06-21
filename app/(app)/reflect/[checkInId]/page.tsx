@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { ReflectionCompleteCard } from "@/components/baseline/reflection-complete-card"
 import { ReflectionForm } from "@/components/baseline/reflection-form"
 import { AcceptedActionCard } from "@/components/baseline/accepted-action-card"
+import { PageBackLink } from "@/components/baseline/page-back-link"
 import { BASELINE_ROUTES } from "@/lib/baseline/routes"
 import { resolveResultReflectionFollowUp } from "@/lib/baseline/result-reflection-section"
 import { loadReflectWorkspace } from "@/lib/server/reflect-workspace"
@@ -27,12 +28,10 @@ export default async function ReflectPage({ params }: ReflectPageProps) {
 
   return (
     <div className="mx-auto max-w-2xl space-y-8 px-4 py-8">
-      <Link
+      <PageBackLink
         href={BASELINE_ROUTES.result(checkInId)}
-        className="inline-block text-sm text-ocean-deep hover:underline"
-      >
-        ← Back to result
-      </Link>
+        label="Back to result"
+      />
 
       <AcceptedActionCard
         action={workspace.acceptedAction}

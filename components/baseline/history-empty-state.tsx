@@ -7,7 +7,8 @@ export function HistoryEmptyState() {
     <section className="rounded-2xl border border-ocean-light/60 bg-white/90 p-8 text-center shadow-sm">
       <h2 className="text-xl font-semibold text-navy-text">No check-ins yet</h2>
       <p className="mt-3 text-sm leading-relaxed text-navy-text/70">
-        Your recent baseline loops will show up here after you check in.
+        Your recent baseline loops will show up here after you check in and
+        choose a right-sized next move.
       </p>
       <Button asChild className="mt-6">
         <Link href={BASELINE_ROUTES.checkIn}>Check in</Link>
