@@ -1,3 +1,6 @@
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { BASELINE_ROUTES } from "@/lib/baseline/routes"
 import { getTodayWorkspace, resolveTodayGreeting } from "@/lib/server/today-workspace"
 
 export default async function TodayPage() {
@@ -26,6 +29,9 @@ export default async function TodayPage() {
             right-sized next move — not the ideal plan, but what actually fits
             today.
           </p>
+          <Button asChild className="mt-6 w-full sm:w-auto" size="lg">
+            <Link href={BASELINE_ROUTES.checkIn}>Check in</Link>
+          </Button>
         </div>
 
         {(workspace?.profileMissing || workspace?.baselineProfileMissing) && (
@@ -34,19 +40,6 @@ export default async function TodayPage() {
             we&apos;ll learn more about your baseline as you go.
           </p>
         )}
-
-        <div
-          aria-label="Check-in flow coming soon"
-          className="rounded-2xl border border-dashed border-ocean-deep/25 bg-ocean-light/10 px-6 py-10 text-center"
-        >
-          <p className="text-sm font-medium text-ocean-deep">
-            Quick check-in
-          </p>
-          <p className="mt-2 text-sm text-navy-text/60">
-            Coming in the next release — score how you are, get a realistic next
-            action, and reflect on what helped.
-          </p>
-        </div>
       </section>
     </div>
   )

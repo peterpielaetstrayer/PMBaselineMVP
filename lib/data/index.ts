@@ -18,7 +18,7 @@ export {
 } from './interpretations'
 
 export type { ActionRecord, CreateActionRecordInput } from './action-records'
-export { createActionRecord, getActionRecordById } from './action-records'
+export { createActionRecord, getActionRecordById, getActionRecordForCheckIn } from './action-records'
 
 export type { Reflection } from './reflections'
 export { createReflection } from './reflections'

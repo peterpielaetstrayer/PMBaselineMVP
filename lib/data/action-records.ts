@@ -7,6 +7,13 @@ import { dataError, type DataResult } from './types'
 
 export type ActionRecord = Database['public']['Tables']['action_records']['Row']
 
+const ACCEPTED_ACTION_STATUSES = ['accepted', 'modified', 'completed'] as const
+
+export interface GetActionRecordForCheckInInput {
+  checkInId: string
+  interpretationId?: string
+}
+
 export interface CreateActionRecordInput {
   checkInId: string
   interpretationId: string
@@ -55,6 +62,41 @@ export async function createActionRecord(
 
   if (error) {
     return dataError('DATABASE_ERROR', error.message)
+  }
+
+  return { ok: true, data }
+}
+
+export async function getActionRecordForCheckIn(
+  client: AuthenticatedSupabaseClient,
+  input: GetActionRecordForCheckInInput
+): Promise<DataResult<ActionRecord>> {
+  const authResult = await requireAuthenticatedUserId(client)
+  if (!authResult.ok) {
+    return authResult
+  }
+
+  let query = client
+    .from('action_records')
+    .select('*')
+    .eq('user_id', authResult.data)
+    .eq('check_in_id', input.checkInId)
+    .in('status', [...ACCEPTED_ACTION_STATUSES])
+    .order('created_at', { ascending: false })
+    .limit(1)
+
+  if (input.interpretationId) {
+    query = query.eq('interpretation_id', input.interpretationId)
+  }
+
+  const { data, error } = await query.maybeSingle()
+
+  if (error) {
+    return dataError('DATABASE_ERROR', error.message)
+  }
+
+  if (!data) {
+    return dataError('NOT_FOUND', 'Action record not found for check-in')
   }
 
   return { ok: true, data }
