@@ -3,6 +3,8 @@ import { getProfile, type Profile } from '@/lib/data/profiles'
 import { getLatestReflectionForUser } from '@/lib/data/reflections'
 import type { AuthenticatedSupabaseClient } from '@/lib/data/session'
 import { createClient } from '@/lib/supabase/server'
+import type { HistoryItem } from '@/lib/baseline/history-item'
+import { loadLatestHistoryItem } from '@/lib/server/history-workspace'
 
 export interface TodayWorkspace {
   email: string
@@ -12,6 +14,7 @@ export interface TodayWorkspace {
   profileMissing: boolean
   baselineProfileMissing: boolean
   hasSavedReflection: boolean
+  latestLoop: HistoryItem | null
 }
 
 export function resolveTodayGreeting(
@@ -31,11 +34,13 @@ export async function loadTodayWorkspace(
 ): Promise<TodayWorkspace> {
   const email = user.email?.trim() || 'your account'
 
-  const [profileResult, baselineResult, latestReflectionResult] = await Promise.all([
-    getProfile(client),
-    getBaselineProfile(client),
-    getLatestReflectionForUser(client),
-  ])
+  const [profileResult, baselineResult, latestReflectionResult, latestLoop] =
+    await Promise.all([
+      getProfile(client),
+      getBaselineProfile(client),
+      getLatestReflectionForUser(client),
+      loadLatestHistoryItem(client),
+    ])
 
   return {
     email,
@@ -46,6 +51,7 @@ export async function loadTodayWorkspace(
     baselineProfileMissing:
       !baselineResult.ok && baselineResult.error.code === 'NOT_FOUND',
     hasSavedReflection: latestReflectionResult.ok,
+    latestLoop,
   }
 }
 

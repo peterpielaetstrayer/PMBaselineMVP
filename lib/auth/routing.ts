@@ -11,3 +11,8 @@ export function resolveUnauthenticatedAppRedirect(
 ): '/login' | null {
   return isAuthenticated ? null : '/login'
 }
+
+/** Canonical root entry: authenticated users to workspace, others to login. */
+export function resolveRootRedirect(isAuthenticated: boolean): '/today' | '/login' {
+  return isAuthenticated ? '/today' : '/login'
+}

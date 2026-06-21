@@ -48,6 +48,7 @@ describe('loadTodayWorkspace', () => {
     expect(workspace.profileMissing).toBe(false)
     expect(workspace.baselineProfileMissing).toBe(false)
     expect(workspace.hasSavedReflection).toBe(false)
+    expect(workspace.latestLoop).toBeNull()
   })
 
   it('reports saved reflection when latest reflection exists', async () => {
@@ -70,6 +71,9 @@ describe('loadTodayWorkspace', () => {
             },
             error: null,
           }
+        }
+        if (table === 'check_ins') {
+          return { data: [], error: null }
         }
         return { data: null, error: { code: 'PGRST116', message: 'not found' } }
       },
@@ -100,6 +104,7 @@ describe('loadTodayWorkspace', () => {
     expect(workspace.profileMissing).toBe(true)
     expect(workspace.baselineProfileMissing).toBe(true)
     expect(workspace.hasSavedReflection).toBe(false)
+    expect(workspace.latestLoop).toBeNull()
     expect(resolveTodayGreeting(workspace.displayName, workspace.email)).toBe(
       'alex@example.com'
     )

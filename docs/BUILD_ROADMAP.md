@@ -64,7 +64,7 @@ Deliverables:
 
 ### Phase 2.1 — Authenticated application shell
 
-Status: **current increment**.
+Status: **complete**.
 
 Deliverables:
 
@@ -76,7 +76,7 @@ Deliverables:
 
 ### Phase 2.2 — Quick check-in loop UI
 
-Status: **next increment**.
+Status: **complete**.
 
 Deliverables:
 
@@ -84,6 +84,39 @@ Deliverables:
 - persisted interpretation result view;
 - action selection and shrinking UI;
 - reflection capture entry point.
+
+### Phase 2.3 — Reflection flow
+
+Status: **complete**.
+
+Deliverables:
+
+- `/reflect/[checkInId]` after accepted action;
+- reflection form and completion card;
+- result page follow-up CTAs;
+- action record marked completed after reflection.
+
+### Phase 2.4 — History and legacy isolation
+
+Status: **current increment**.
+
+Deliverables:
+
+- canonical `/history` route with recent loop list;
+- history read model composed from stored check-ins, interpretations, actions, and reflections;
+- `/today` links to check-in and history with optional latest-loop status;
+- root `/` redirects to `/today` or `/login`;
+- legacy app isolated at `/legacy` with retirement notice.
+
+### Phase 2.5 — Polish and Phase 3 readiness
+
+Status: **next increment**.
+
+Deliverables:
+
+- UX polish across canonical loop and history;
+- edge-case hardening and empty states;
+- documentation and test coverage for Phase 3 AI layer handoff.
 
 ### Phase 2 completion criteria
 
@@ -191,9 +224,10 @@ After pulling `master` in Cursor:
 
 1. run the app locally and sign in at `/login`;
 2. verify `/today` loads the authenticated workspace shell;
-3. implement Phase 2.2 quick check-in UI against the Phase 2.0 Server Actions;
-4. keep legacy `/` isolated until the canonical loop replaces it.
+3. complete a check-in loop and confirm `/history` shows stored records;
+4. verify `/` redirects to `/today` when signed in and `/login` when signed out;
+5. use `/legacy` only for temporary access to the old app until it is retired.
 
 Reason:
 
-Phase 2.0 persistence is in place. The authenticated shell (Phase 2.1) gives the canonical loop a permanent home before UI wiring.
+Phase 2.0–2.3 persistence and canonical loop UI are in place. Phase 2.4 adds history and moves the legacy app off the root path before Phase 2.5 polish and Phase 3 AI work.

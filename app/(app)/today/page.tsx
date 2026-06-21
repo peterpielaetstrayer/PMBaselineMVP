@@ -1,6 +1,12 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import {
+  formatHistoryItemDate,
+  historyItemStatusLabel,
+} from "@/lib/baseline/history-item"
+import { formatBaselineMode } from "@/lib/baseline/display"
 import { BASELINE_ROUTES } from "@/lib/baseline/routes"
+import type { BaselineMode } from "@/lib/baseline/types"
 import { getTodayWorkspace, resolveTodayGreeting } from "@/lib/server/today-workspace"
 
 export default async function TodayPage() {
@@ -9,6 +15,11 @@ export default async function TodayPage() {
     workspace?.displayName,
     workspace?.email ?? "there"
   )
+  const latestLoop = workspace?.latestLoop ?? null
+  const latestModeLabel =
+    latestLoop?.proposedMode != null
+      ? formatBaselineMode(latestLoop.proposedMode as BaselineMode)
+      : null
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
@@ -29,16 +40,42 @@ export default async function TodayPage() {
             right-sized next move — not the ideal plan, but what actually fits
             today.
           </p>
-          <Button asChild className="mt-6 w-full sm:w-auto" size="lg">
-            <Link href={BASELINE_ROUTES.checkIn}>Check in</Link>
-          </Button>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button asChild className="w-full sm:w-auto" size="lg">
+              <Link href={BASELINE_ROUTES.checkIn}>Check in</Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full sm:w-auto" size="lg">
+              <Link href={BASELINE_ROUTES.history}>View history</Link>
+            </Button>
+          </div>
         </div>
 
-        <p className="rounded-lg border border-ocean-light/40 bg-ocean-light/10 px-4 py-3 text-sm text-navy-text/80">
-          {workspace?.hasSavedReflection
-            ? "Your last reflection is saved. Ready for your next check-in when you are."
-            : "Ready for your next check-in whenever you want a read on today."}
-        </p>
+        {latestLoop ? (
+          <div className="rounded-lg border border-ocean-light/40 bg-ocean-light/10 px-4 py-3 text-sm text-navy-text/80">
+            <p className="font-medium text-navy-text">Latest loop</p>
+            <p className="mt-1">
+              {formatHistoryItemDate(latestLoop.createdAt)}
+              {latestModeLabel ? ` · ${latestModeLabel.title}` : null}
+            </p>
+            <p className="mt-1">{historyItemStatusLabel(latestLoop.status)}</p>
+            <Link
+              href={latestLoop.linkPath}
+              className="mt-2 inline-block font-medium text-ocean-deep hover:underline"
+            >
+              {latestLoop.status === "complete"
+                ? "View last result"
+                : latestLoop.status === "reflection_pending"
+                  ? "Continue reflection"
+                  : "Continue loop"}
+            </Link>
+          </div>
+        ) : (
+          <p className="rounded-lg border border-ocean-light/40 bg-ocean-light/10 px-4 py-3 text-sm text-navy-text/80">
+            {workspace?.hasSavedReflection
+              ? "Your last reflection is saved. Ready for your next check-in when you are."
+              : "Ready for your next check-in whenever you want a read on today."}
+          </p>
+        )}
 
         {(workspace?.profileMissing || workspace?.baselineProfileMissing) && (
           <p className="rounded-lg border border-sand-neutral bg-sand-neutral/40 px-4 py-3 text-sm text-navy-text/80">

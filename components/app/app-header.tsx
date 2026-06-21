@@ -1,15 +1,23 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
+import { BASELINE_ROUTES } from "@/lib/baseline/routes"
 import { Button } from "@/components/ui/button"
 
 interface AppHeaderProps {
   email: string
 }
 
+const NAV_ITEMS = [
+  { href: BASELINE_ROUTES.today, label: "Today" },
+  { href: BASELINE_ROUTES.history, label: "History" },
+] as const
+
 export function AppHeader({ email }: AppHeaderProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const { signOut } = useAuth()
 
   const handleSignOut = async () => {
@@ -20,11 +28,35 @@ export function AppHeader({ email }: AppHeaderProps) {
 
   return (
     <header className="border-b border-ocean-light/40 bg-white/80 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-3">
+      <div className="mx-auto flex max-w-2xl flex-wrap items-center justify-between gap-3 px-4 py-3">
         <div>
           <p className="text-sm font-semibold text-ocean-deep">PMBaseline</p>
           <p className="text-xs text-navy-text/60">Choose the right next move</p>
         </div>
+
+        <nav
+          aria-label="Main"
+          className="order-3 flex w-full gap-1 sm:order-none sm:w-auto"
+        >
+          {NAV_ITEMS.map((item) => {
+            const isActive = pathname === item.href
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-ocean-light/40 text-ocean-deep"
+                    : "text-navy-text/70 hover:bg-ocean-light/20 hover:text-navy-text"
+                }`}
+                aria-current={isActive ? "page" : undefined}
+              >
+                {item.label}
+              </Link>
+            )
+          })}
+        </nav>
+
         <div className="flex items-center gap-3">
           <span className="hidden max-w-[10rem] truncate text-xs text-navy-text/70 sm:inline">
             {email}

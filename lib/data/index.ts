@@ -10,6 +10,14 @@ export {
 export type { CheckIn } from './check-ins'
 export { getCheckInById } from './check-ins'
 
+export {
+  DEFAULT_RECENT_CHECK_INS_LIMIT,
+  getActionRecordsForCheckInIds,
+  getInterpretationsForCheckInIds,
+  getRecentCheckInsForUser,
+  getReflectionsForCheckInIds,
+} from './history'
+
 export type { Interpretation } from './interpretations'
 export {
   getInterpretationById,

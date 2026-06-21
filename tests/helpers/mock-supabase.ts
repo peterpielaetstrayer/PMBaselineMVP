@@ -42,6 +42,10 @@ export function createMockSupabaseClient(options: {
           filters[column] = value
           return chain
         },
+        in: (column: string, value: unknown) => {
+          filters[`in:${column}`] = value
+          return chain
+        },
         order: () => chain,
         limit: () => chain,
         maybeSingle: async () => {
@@ -61,6 +65,20 @@ export function createMockSupabaseClient(options: {
             }
           }
           return onQuery(table, operation, filters)
+        },
+        then: (
+          resolve: (value: MockQueryResult) => void,
+          reject?: (reason: unknown) => void
+        ) => {
+          try {
+            if (!onQuery) {
+              resolve({ data: [], error: null })
+              return
+            }
+            resolve(onQuery(table, operation, filters))
+          } catch (error) {
+            reject?.(error)
+          }
         },
       }
 

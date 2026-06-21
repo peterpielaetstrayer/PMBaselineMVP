@@ -5,6 +5,9 @@ describe('baseline routes', () => {
   it('points today CTA to /check-in', () => {
     expect(BASELINE_ROUTES.checkIn).toBe('/check-in')
     expect(BASELINE_ROUTES.today).toBe('/today')
+    expect(BASELINE_ROUTES.history).toBe('/history')
+    expect(BASELINE_ROUTES.legacy).toBe('/legacy')
+    expect(BASELINE_ROUTES.root).toBe('/')
   })
 
   it('builds result route from check-in id', () => {
