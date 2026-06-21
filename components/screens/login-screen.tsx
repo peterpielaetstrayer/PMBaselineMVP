@@ -1,7 +1,11 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
+/**
+ * Legacy-only login wrapper used by `/legacy`.
+ * "Continue without account" is a legacy guest path — not shown on `/login`.
+ */
 import { AuthForm } from "@/components/auth/auth-form"
+import { Button } from "@/components/ui/button"
 
 interface LoginScreenProps {
   onSuccess: () => void
