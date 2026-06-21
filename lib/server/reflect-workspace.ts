@@ -11,25 +11,24 @@ import type { StoredInterpretation } from '@/lib/validation/interpretation'
 import type { StoredReflection } from '@/lib/validation/reflection'
 import { createClient } from '@/lib/supabase/server'
 
-export interface CheckInResultView {
+export interface ReflectWorkspaceView {
+  checkInId: string
   interpretation: StoredInterpretation
-  acceptedAction: BaselineActionDTO | null
-  actionRecordId: string | null
+  acceptedAction: BaselineActionDTO
+  actionRecordId: string
   reflection: StoredReflection | null
 }
 
-export async function loadStoredCheckInResultWithClient(
+export async function loadReflectWorkspaceWithClient(
   client: AuthenticatedSupabaseClient,
   checkInId: string
-): Promise<CheckInResultView | null> {
+): Promise<ReflectWorkspaceView | null> {
   const checkInResult = await getCheckInById(client, checkInId)
-
   if (!checkInResult.ok) {
     return null
   }
 
   const interpretationResult = await getInterpretationForCheckIn(client, checkInId)
-
   if (!interpretationResult.ok) {
     return null
   }
@@ -46,11 +45,9 @@ export async function loadStoredCheckInResultWithClient(
     interpretationId: interpretation.interpretationId,
   })
 
-  const acceptedAction = actionRecordResult.ok
-    ? actionRecordToBaselineAction(actionRecordResult.data)
-    : null
-
-  const actionRecordId = actionRecordResult.ok ? actionRecordResult.data.id : null
+  if (!actionRecordResult.ok) {
+    return null
+  }
 
   const reflectionResult = await getReflectionForCheckIn(client, checkInId)
   const reflection = reflectionResult.ok
@@ -58,16 +55,17 @@ export async function loadStoredCheckInResultWithClient(
     : null
 
   return {
+    checkInId,
     interpretation,
-    acceptedAction,
-    actionRecordId,
+    acceptedAction: actionRecordToBaselineAction(actionRecordResult.data),
+    actionRecordId: actionRecordResult.data.id,
     reflection,
   }
 }
 
-export async function loadStoredCheckInResult(
+export async function loadReflectWorkspace(
   checkInId: string
-): Promise<CheckInResultView | null> {
+): Promise<ReflectWorkspaceView | null> {
   const supabase = await createClient()
-  return loadStoredCheckInResultWithClient(supabase, checkInId)
+  return loadReflectWorkspaceWithClient(supabase, checkInId)
 }

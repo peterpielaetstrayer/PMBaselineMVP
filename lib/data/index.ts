@@ -18,10 +18,19 @@ export {
 } from './interpretations'
 
 export type { ActionRecord, CreateActionRecordInput } from './action-records'
-export { createActionRecord, getActionRecordById, getActionRecordForCheckIn } from './action-records'
+export {
+  createActionRecord,
+  getActionRecordById,
+  getActionRecordForCheckIn,
+  markActionRecordCompleted,
+} from './action-records'
 
 export type { Reflection } from './reflections'
-export { createReflection } from './reflections'
+export {
+  createReflection,
+  getLatestReflectionForUser,
+  getReflectionForCheckIn,
+} from './reflections'
 
 export type {
   SubmitCheckInRpcResult,

@@ -12,4 +12,10 @@ describe('baseline routes', () => {
       '/result/770e8400-e29b-41d4-a716-446655440002'
     )
   })
+
+  it('builds reflect route from check-in id', () => {
+    expect(BASELINE_ROUTES.reflect('770e8400-e29b-41d4-a716-446655440002')).toBe(
+      '/reflect/770e8400-e29b-41d4-a716-446655440002'
+    )
+  })
 })

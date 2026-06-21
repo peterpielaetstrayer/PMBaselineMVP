@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { AcceptedActionCard } from "./accepted-action-card"
+import { BASELINE_ROUTES } from "@/lib/baseline/routes"
 
 interface ActionChoiceListProps {
   interpretation: StoredInterpretation
@@ -83,7 +84,15 @@ export function ActionChoiceList({ interpretation }: ActionChoiceListProps) {
   }
 
   if (accepted) {
-    return <AcceptedActionCard action={accepted.action} />
+    return (
+      <AcceptedActionCard
+        action={accepted.action}
+        reflectionFollowUp={{
+          kind: "reflect",
+          reflectPath: BASELINE_ROUTES.reflect(interpretation.checkInId),
+        }}
+      />
+    )
   }
 
   return (

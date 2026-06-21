@@ -102,6 +102,36 @@ export async function getActionRecordForCheckIn(
   return { ok: true, data }
 }
 
+export async function markActionRecordCompleted(
+  client: AuthenticatedSupabaseClient,
+  actionRecordId: string
+): Promise<DataResult<ActionRecord>> {
+  const authResult = await requireAuthenticatedUserId(client)
+  if (!authResult.ok) {
+    return authResult
+  }
+
+  const { data, error } = await client
+    .from('action_records')
+    .update({
+      status: 'completed',
+      completed_at: new Date().toISOString(),
+    })
+    .eq('id', actionRecordId)
+    .eq('user_id', authResult.data)
+    .select('*')
+    .single()
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      return dataError('NOT_FOUND', 'Action record not found')
+    }
+    return dataError('DATABASE_ERROR', error.message)
+  }
+
+  return { ok: true, data }
+}
+
 export async function getActionRecordById(
   client: AuthenticatedSupabaseClient,
   actionRecordId: string

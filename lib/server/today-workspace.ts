@@ -1,5 +1,6 @@
 import { getBaselineProfile, type BaselineProfile } from '@/lib/data/baseline-profiles'
 import { getProfile, type Profile } from '@/lib/data/profiles'
+import { getLatestReflectionForUser } from '@/lib/data/reflections'
 import type { AuthenticatedSupabaseClient } from '@/lib/data/session'
 import { createClient } from '@/lib/supabase/server'
 
@@ -10,6 +11,7 @@ export interface TodayWorkspace {
   baselineProfile: BaselineProfile | null
   profileMissing: boolean
   baselineProfileMissing: boolean
+  hasSavedReflection: boolean
 }
 
 export function resolveTodayGreeting(
@@ -29,9 +31,10 @@ export async function loadTodayWorkspace(
 ): Promise<TodayWorkspace> {
   const email = user.email?.trim() || 'your account'
 
-  const [profileResult, baselineResult] = await Promise.all([
+  const [profileResult, baselineResult, latestReflectionResult] = await Promise.all([
     getProfile(client),
     getBaselineProfile(client),
+    getLatestReflectionForUser(client),
   ])
 
   return {
@@ -42,6 +45,7 @@ export async function loadTodayWorkspace(
     profileMissing: !profileResult.ok && profileResult.error.code === 'NOT_FOUND',
     baselineProfileMissing:
       !baselineResult.ok && baselineResult.error.code === 'NOT_FOUND',
+    hasSavedReflection: latestReflectionResult.ok,
   }
 }
 

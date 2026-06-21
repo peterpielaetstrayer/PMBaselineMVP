@@ -4,6 +4,8 @@ import { AcceptedActionCard } from "@/components/baseline/accepted-action-card"
 import { ActionChoiceList } from "@/components/baseline/action-choice-list"
 import { ModeResultCard } from "@/components/baseline/mode-result-card"
 import { resolveResultActionSectionView } from "@/lib/baseline/result-action-section"
+import { resolveResultReflectionFollowUp } from "@/lib/baseline/result-reflection-section"
+import { BASELINE_ROUTES } from "@/lib/baseline/routes"
 import { loadStoredCheckInResult } from "@/lib/server/check-in-result"
 
 interface ResultPageProps {
@@ -19,11 +21,16 @@ export default async function ResultPage({ params }: ResultPageProps) {
   }
 
   const actionSection = resolveResultActionSectionView(result.acceptedAction)
+  const reflectionFollowUp = resolveResultReflectionFollowUp({
+    hasAcceptedAction: Boolean(result.acceptedAction),
+    reflectionComplete: Boolean(result.reflection),
+    checkInId,
+  })
 
   return (
     <div className="mx-auto max-w-2xl space-y-8 px-4 py-8">
       <Link
-        href="/today"
+        href={BASELINE_ROUTES.today}
         className="inline-block text-sm text-ocean-deep hover:underline"
       >
         ← Back to today
@@ -32,7 +39,10 @@ export default async function ResultPage({ params }: ResultPageProps) {
       <ModeResultCard interpretation={result.interpretation} />
 
       {actionSection.kind === "accepted" ? (
-        <AcceptedActionCard action={actionSection.action} />
+        <AcceptedActionCard
+          action={actionSection.action}
+          reflectionFollowUp={reflectionFollowUp}
+        />
       ) : (
         <ActionChoiceList interpretation={result.interpretation} />
       )}

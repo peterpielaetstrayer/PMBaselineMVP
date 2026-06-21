@@ -47,6 +47,39 @@ describe('loadTodayWorkspace', () => {
     expect(workspace.baselineProfile?.user_id).toBe('user-123')
     expect(workspace.profileMissing).toBe(false)
     expect(workspace.baselineProfileMissing).toBe(false)
+    expect(workspace.hasSavedReflection).toBe(false)
+  })
+
+  it('reports saved reflection when latest reflection exists', async () => {
+    const client = createMockSupabaseClient({
+      user: { id: 'user-123' },
+      onQuery: (table) => {
+        if (table === 'profiles') {
+          return { data: sampleProfile, error: null }
+        }
+        if (table === 'baseline_profiles') {
+          return { data: sampleBaselineProfile, error: null }
+        }
+        if (table === 'reflections') {
+          return {
+            data: {
+              id: 'aa0e8400-e29b-41d4-a716-446655440005',
+              user_id: 'user-123',
+              check_in_id: '770e8400-e29b-41d4-a716-446655440002',
+              effect: 'helped',
+            },
+            error: null,
+          }
+        }
+        return { data: null, error: { code: 'PGRST116', message: 'not found' } }
+      },
+    })
+
+    const workspace = await loadTodayWorkspace(client, {
+      email: 'alex@example.com',
+    })
+
+    expect(workspace.hasSavedReflection).toBe(true)
   })
 
   it('handles missing profile rows gracefully', async () => {
@@ -66,6 +99,7 @@ describe('loadTodayWorkspace', () => {
     expect(workspace.baselineProfile).toBeNull()
     expect(workspace.profileMissing).toBe(true)
     expect(workspace.baselineProfileMissing).toBe(true)
+    expect(workspace.hasSavedReflection).toBe(false)
     expect(resolveTodayGreeting(workspace.displayName, workspace.email)).toBe(
       'alex@example.com'
     )

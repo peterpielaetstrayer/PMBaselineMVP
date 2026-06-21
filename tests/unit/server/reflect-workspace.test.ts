@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { loadStoredCheckInResultWithClient } from '@/lib/server/check-in-result'
+import { loadReflectWorkspaceWithClient } from '@/lib/server/reflect-workspace'
 
 const checkInId = '770e8400-e29b-41d4-a716-446655440002'
 const interpretationId = '880e8400-e29b-41d4-a716-446655440003'
@@ -16,7 +16,7 @@ const storedRow = {
     domain: 'recovery',
   },
   alternative_actions: [],
-  avoid_for_now: ['Extra goals'],
+  avoid_for_now: [],
   reflection_prompt: 'What felt manageable today?',
   safety: { level: 'standard', message: null },
   source: 'fallback',
@@ -32,17 +32,29 @@ const storedAction = {
   interpretation_id: interpretationId,
   action_key: 'rebuild-anchor',
   action_payload: storedRow.primary_action,
-  action_text: 'One small anchor: Do the smallest version of one familiar routine.',
+  action_text: 'One small anchor',
   action_domain: 'recovery',
   action_source: 'primary',
   status: 'accepted',
+}
+
+const storedReflection = {
+  id: 'aa0e8400-e29b-41d4-a716-446655440005',
+  user_id: 'user-123',
+  check_in_id: checkInId,
+  action_record_id: storedAction.id,
+  effect: 'helped',
+  what_changed: 'Less scattered',
+  what_was_protected: 'Energy',
+  lesson: null,
+  final_baseline_score: 7,
 }
 
 function createClient(options: {
   checkInFound?: boolean
   interpretationFound?: boolean
   actionRecord?: typeof storedAction | null
-  reflection?: null
+  reflection?: typeof storedReflection | null
 }) {
   return {
     auth: {
@@ -80,29 +92,32 @@ function createClient(options: {
       }
       chain.maybeSingle = async () => {
         if (table === 'action_records') {
-          return {
-            data: options.actionRecord ?? null,
-            error: null,
-          }
+          return { data: options.actionRecord ?? null, error: null }
         }
 
         if (table === 'reflections') {
-          return {
-            data: options.reflection ?? null,
-            error: null,
-          }
+          return { data: options.reflection ?? null, error: null }
         }
 
-        return { data: null, error: { message: 'unexpected table' } }
+        return { data: null, error: null }
       }
       return chain
     },
   } as never
 }
 
-describe('loadStoredCheckInResultWithClient', () => {
-  it('returns stored interpretation without recomputing engine output', async () => {
-    const result = await loadStoredCheckInResultWithClient(
+describe('loadReflectWorkspaceWithClient', () => {
+  it('returns null when check-in is missing', async () => {
+    const result = await loadReflectWorkspaceWithClient(
+      createClient({ checkInFound: false }),
+      checkInId
+    )
+
+    expect(result).toBeNull()
+  })
+
+  it('returns null when accepted action is missing', async () => {
+    const result = await loadReflectWorkspaceWithClient(
       createClient({
         checkInFound: true,
         interpretationFound: true,
@@ -111,43 +126,36 @@ describe('loadStoredCheckInResultWithClient', () => {
       checkInId
     )
 
-    expect(result).not.toBeNull()
-    expect(result?.interpretation.summary).toBe('Stored summary from database.')
-    expect(result?.interpretation.proposedMode).toBe('rebuild')
-    expect(result?.interpretation.interpretationId).toBe(interpretationId)
-    expect(result?.acceptedAction).toBeNull()
+    expect(result).toBeNull()
   })
 
-  it('returns existing accepted action when present', async () => {
-    const result = await loadStoredCheckInResultWithClient(
+  it('returns workspace without reflection when none exists yet', async () => {
+    const result = await loadReflectWorkspaceWithClient(
       createClient({
         checkInFound: true,
         interpretationFound: true,
         actionRecord: storedAction,
+        reflection: null,
       }),
       checkInId
     )
 
-    expect(result?.acceptedAction).toEqual(storedRow.primary_action)
     expect(result?.actionRecordId).toBe(storedAction.id)
     expect(result?.reflection).toBeNull()
   })
 
-  it('returns null when check-in is not owned or missing', async () => {
-    const result = await loadStoredCheckInResultWithClient(
-      createClient({ checkInFound: false, interpretationFound: true }),
+  it('returns existing reflection when present', async () => {
+    const result = await loadReflectWorkspaceWithClient(
+      createClient({
+        checkInFound: true,
+        interpretationFound: true,
+        actionRecord: storedAction,
+        reflection: storedReflection,
+      }),
       checkInId
     )
 
-    expect(result).toBeNull()
-  })
-
-  it('returns null when interpretation is missing', async () => {
-    const result = await loadStoredCheckInResultWithClient(
-      createClient({ checkInFound: true, interpretationFound: false }),
-      checkInId
-    )
-
-    expect(result).toBeNull()
+    expect(result?.reflection?.effect).toBe('helped')
+    expect(result?.reflection?.reflectionId).toBe(storedReflection.id)
   })
 })

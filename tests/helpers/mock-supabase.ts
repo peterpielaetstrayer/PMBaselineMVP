@@ -42,6 +42,17 @@ export function createMockSupabaseClient(options: {
           filters[column] = value
           return chain
         },
+        order: () => chain,
+        limit: () => chain,
+        maybeSingle: async () => {
+          if (!onQuery) {
+            return {
+              data: null,
+              error: { code: 'PGRST116', message: 'not found' },
+            }
+          }
+          return onQuery(table, operation, filters)
+        },
         single: async () => {
           if (!onQuery) {
             return {

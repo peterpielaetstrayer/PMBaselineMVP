@@ -34,6 +34,12 @@ export default async function TodayPage() {
           </Button>
         </div>
 
+        <p className="rounded-lg border border-ocean-light/40 bg-ocean-light/10 px-4 py-3 text-sm text-navy-text/80">
+          {workspace?.hasSavedReflection
+            ? "Your last reflection is saved. Ready for your next check-in when you are."
+            : "Ready for your next check-in whenever you want a read on today."}
+        </p>
+
         {(workspace?.profileMissing || workspace?.baselineProfileMissing) && (
           <p className="rounded-lg border border-sand-neutral bg-sand-neutral/40 px-4 py-3 text-sm text-navy-text/80">
             Your profile is still settling in. You can start a check-in anytime;

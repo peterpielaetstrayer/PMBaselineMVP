@@ -7,6 +7,62 @@ import { dataError, type DataResult } from './types'
 
 export type Reflection = Database['public']['Tables']['reflections']['Row']
 
+export async function getReflectionForCheckIn(
+  client: AuthenticatedSupabaseClient,
+  checkInId: string
+): Promise<DataResult<Reflection>> {
+  const authResult = await requireAuthenticatedUserId(client)
+  if (!authResult.ok) {
+    return authResult
+  }
+
+  const { data, error } = await client
+    .from('reflections')
+    .select('*')
+    .eq('user_id', authResult.data)
+    .eq('check_in_id', checkInId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) {
+    return dataError('DATABASE_ERROR', error.message)
+  }
+
+  if (!data) {
+    return dataError('NOT_FOUND', 'Reflection not found for check-in')
+  }
+
+  return { ok: true, data }
+}
+
+export async function getLatestReflectionForUser(
+  client: AuthenticatedSupabaseClient
+): Promise<DataResult<Reflection>> {
+  const authResult = await requireAuthenticatedUserId(client)
+  if (!authResult.ok) {
+    return authResult
+  }
+
+  const { data, error } = await client
+    .from('reflections')
+    .select('*')
+    .eq('user_id', authResult.data)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) {
+    return dataError('DATABASE_ERROR', error.message)
+  }
+
+  if (!data) {
+    return dataError('NOT_FOUND', 'No reflections found')
+  }
+
+  return { ok: true, data }
+}
+
 export async function createReflection(
   client: AuthenticatedSupabaseClient,
   input: ReflectionInput
@@ -14,6 +70,11 @@ export async function createReflection(
   const authResult = await requireAuthenticatedUserId(client)
   if (!authResult.ok) {
     return authResult
+  }
+
+  const existingReflection = await getReflectionForCheckIn(client, input.checkInId)
+  if (existingReflection.ok) {
+    return dataError('FORBIDDEN', 'Reflection already exists for this check-in')
   }
 
   const checkInResult = await getCheckInById(client, input.checkInId)

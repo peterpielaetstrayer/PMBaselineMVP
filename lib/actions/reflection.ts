@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { markActionRecordCompleted } from '@/lib/data/action-records'
 import { createReflection } from '@/lib/data/reflections'
 import {
   ReflectionInputSchema,
@@ -30,6 +31,16 @@ export async function submitReflection(
   const result = await createReflection(client, parsed.data)
   if (!result.ok) {
     return { ok: false, error: fromDataError(result.error) }
+  }
+
+  if (parsed.data.actionRecordId) {
+    const completionResult = await markActionRecordCompleted(
+      client,
+      parsed.data.actionRecordId
+    )
+    if (!completionResult.ok) {
+      return { ok: false, error: fromDataError(completionResult.error) }
+    }
   }
 
   return actionSuccess(

@@ -24,6 +24,9 @@ function authClient(tableHandlers: Record<string, () => Promise<{ data: unknown;
 
       chain.select = () => chain
       chain.eq = () => chain
+      chain.order = () => chain
+      chain.limit = () => chain
+      chain.maybeSingle = terminal
       chain.single = terminal
       chain.insert = () => ({
         select: () => ({
@@ -137,6 +140,7 @@ describe('getInterpretationForCheckIn', () => {
 describe('createReflection', () => {
   it('requires owned check-in', async () => {
     const client = authClient({
+      reflections: async () => ({ data: null, error: null }),
       check_ins: async () => ({
         data: null,
         error: { code: 'PGRST116', message: 'not found' },
@@ -155,18 +159,25 @@ describe('createReflection', () => {
   })
 
   it('creates reflection for owned check-in', async () => {
+    let reflectionCalls = 0
     const client = authClient({
+      reflections: async () => {
+        reflectionCalls += 1
+        if (reflectionCalls === 1) {
+          return { data: null, error: null }
+        }
+        return {
+          data: {
+            id: 'aa0e8400-e29b-41d4-a716-446655440005',
+            user_id: 'user-123',
+            check_in_id: '770e8400-e29b-41d4-a716-446655440002',
+            effect: 'helped',
+          },
+          error: null,
+        }
+      },
       check_ins: async () => ({
         data: { id: '770e8400-e29b-41d4-a716-446655440002' },
-        error: null,
-      }),
-      reflections: async () => ({
-        data: {
-          id: 'aa0e8400-e29b-41d4-a716-446655440005',
-          user_id: 'user-123',
-          check_in_id: '770e8400-e29b-41d4-a716-446655440002',
-          effect: 'helped',
-        },
         error: null,
       }),
     })
