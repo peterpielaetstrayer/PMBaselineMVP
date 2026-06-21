@@ -8,16 +8,24 @@ import { Toaster } from "@/components/ui/toaster"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "PM Baseline - Build Your Daily Foundation",
-  description: "Track your physical and mental minimums daily. Build consistent habits for better health and productivity.",
-  keywords: ["habits", "productivity", "health", "daily routine", "baseline"],
-  authors: [{ name: "PM Baseline Team" }],
+  title: "PMBaseline — Choose the Right Next Move",
+  description:
+    "PMBaseline helps you understand your current state, choose a realistic next action, and learn what supports your baseline over time.",
+  keywords: [
+    "baseline",
+    "self-regulation",
+    "behavior change",
+    "next action",
+    "capacity",
+    "wellbeing",
+  ],
+  authors: [{ name: "PMBaseline" }],
   robots: "index, follow",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "PM Baseline",
+    title: "PMBaseline",
   },
 }
 

@@ -2,6 +2,11 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { getBrowserClient } from '@/lib/supabase/client'
+import {
+  deriveSignUpResult,
+  type AuthErrorResult,
+  type SignUpResult,
+} from '@/lib/auth/sign-up-result'
 import type { User } from '@supabase/supabase-js'
 
 const AUTH_INIT_TIMEOUT_MS = 8000
@@ -9,10 +14,10 @@ const AUTH_INIT_TIMEOUT_MS = 8000
 interface AuthContextType {
   user: User | null
   loading: boolean
-  signIn: (email: string, password: string) => Promise<{ error: any }>
-  signUp: (email: string, password: string, name: string) => Promise<{ error: any }>
+  signIn: (email: string, password: string) => Promise<{ error: AuthErrorResult | null }>
+  signUp: (email: string, password: string, name: string) => Promise<SignUpResult>
   signOut: () => Promise<void>
-  resetPassword: (email: string) => Promise<{ error: any }>
+  resetPassword: (email: string) => Promise<{ error: AuthErrorResult | null }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -96,28 +101,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
     })
-    return { error }
+
+    return { error: error ? { message: error.message } : null }
   }
 
   const signUp = async (email: string, password: string, name: string) => {
     const supabase = getBrowserClient()
     if (!supabase) {
-      return { error: { message: 'Authentication is not configured' } }
+      return {
+        ok: false,
+        error: { message: 'Authentication is not configured' },
+      } as const
     }
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           name,
         },
+        emailRedirectTo: `${window.location.origin}/login?confirmed=1`,
       },
     })
 
-    console.error("[auth.signUp result]", error)
-
-    return { error }
+    return deriveSignUpResult(
+      email,
+      error ? { message: error.message } : null,
+      data.session
+    )
   }
 
   const signOut = async () => {
@@ -135,7 +147,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     })
-    return { error }
+
+    return { error: error ? { message: error.message } : null }
   }
 
   const value = {
@@ -157,3 +170,5 @@ export function useAuth() {
   }
   return context
 }
+
+export type { AuthErrorResult, SignUpResult }

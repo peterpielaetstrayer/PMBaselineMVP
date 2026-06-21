@@ -1,7 +1,7 @@
 # PMBaseline Build Roadmap
 
 **Status:** v0.1 alpha roadmap  
-**Last updated:** 2026-06-13
+**Last updated:** 2026-06-14
 
 ## Strategic rule
 
@@ -49,19 +49,49 @@ Success condition:
 
 Goal: prove the product can work even if AI is unavailable.
 
-Tasks:
+### Phase 2.0 — Persistence and interpretation foundation
 
-1. implement quick check-in screen;
-2. implement deterministic mode engine;
-3. implement mode-specific choice menus;
-4. implement action selection and action shrinking;
-5. implement reflection capture;
-6. implement simple history view;
-7. implement fallback result UI.
+Status: **complete** on `master`.
 
-Success condition:
+Deliverables:
+
+- canonical Zod schemas for check-in, safety, interpretation, action, and reflection contracts;
+- `InterpretationProvider` with deterministic engine implementation;
+- server-derived safety level;
+- idempotent check-in submission via atomic RPC;
+- typed DAL for check-ins, interpretations, action records, and reflections;
+- mutation Server Actions for submit check-in, accept action, and submit reflection.
+
+### Phase 2.1 — Authenticated application shell
+
+Status: **current increment**.
+
+Deliverables:
+
+- permanent `/login` route with typed signup confirmation behavior;
+- authenticated `(app)` layout with server-side auth gate;
+- permanent `/today` workspace shell;
+- reusable `AuthForm` shared with legacy login wrapper;
+- updated product metadata.
+
+### Phase 2.2 — Quick check-in loop UI
+
+Status: **next increment**.
+
+Deliverables:
+
+- quick check-in screen wired to Phase 2.0 persistence;
+- persisted interpretation result view;
+- action selection and shrinking UI;
+- reflection capture entry point.
+
+### Phase 2 completion criteria
 
 - User can complete check-in → receive fallback mode/action → choose/modify action → reflect → view history.
+
+Supporting work already complete:
+
+- deterministic mode engine (`lib/baseline/`).
 
 ## Phase 3 — AI interpretation layer
 
@@ -159,12 +189,11 @@ Success condition:
 
 After pulling `master` in Cursor:
 
-1. run the app locally;
-2. verify build health;
-3. inspect current Supabase/auth state;
-4. create the first migration from `DATABASE_SCHEMA.md`;
-5. implement the deterministic mode engine before the AI endpoint.
+1. run the app locally and sign in at `/login`;
+2. verify `/today` loads the authenticated workspace shell;
+3. implement Phase 2.2 quick check-in UI against the Phase 2.0 Server Actions;
+4. keep legacy `/` isolated until the canonical loop replaces it.
 
 Reason:
 
-A reliable non-AI baseline loop gives the AI a safe place to live.
+Phase 2.0 persistence is in place. The authenticated shell (Phase 2.1) gives the canonical loop a permanent home before UI wiring.
