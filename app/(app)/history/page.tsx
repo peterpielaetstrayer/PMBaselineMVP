@@ -15,10 +15,9 @@ export default async function HistoryPage() {
           <p className="text-sm font-medium uppercase tracking-wide text-ocean-deep/80">
             Your loops
           </p>
-          <h1 className="text-3xl font-bold text-navy-text">History</h1>
-          <p className="mt-2 text-sm text-navy-text/70">
-            Recent check-ins and how each loop ended — no recomputing, just what
-            you saved.
+          <h1 className="text-2xl font-bold text-navy-text">History</h1>
+          <p className="mt-1 text-sm text-navy-text/60">
+            What state you were in, what move you chose, and whether it helped.
           </p>
         </div>
         <PageBackLink

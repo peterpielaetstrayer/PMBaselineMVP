@@ -62,16 +62,22 @@ export function QuickCheckInForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8" aria-busy={isSubmitting}>
+    <form onSubmit={handleSubmit} className="space-y-6" aria-busy={isSubmitting}>
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold text-navy-text">Where are you right now?</h1>
+        <h1 className="text-2xl font-bold text-navy-text">Quick pulse</h1>
         <p className="text-sm leading-relaxed text-navy-text/70">
-          A quick read on your state — not a scorecard. Slide to what feels true
-          enough for today.
+          Give the app just enough signal. This is not a scorecard — slide to
+          what feels true enough for right now.
         </p>
       </div>
 
-      <div className="space-y-6 rounded-2xl border border-ocean-light/60 bg-white/90 p-5 shadow-sm">
+      <section
+        aria-labelledby="quick-pulse-heading"
+        className="space-y-5 rounded-2xl border border-ocean-light/60 bg-white/90 p-5 shadow-sm"
+      >
+        <h2 id="quick-pulse-heading" className="text-sm font-semibold text-ocean-deep">
+          Quick pulse
+        </h2>
         <ScoreInput
           id="physical"
           label="Physical"
@@ -106,139 +112,146 @@ export function QuickCheckInForm() {
           lowLabel="Calm"
           highLabel="Overwhelmed"
         />
-      </div>
-
-      <fieldset className="space-y-3 rounded-xl border border-sand-neutral/60 bg-sand-neutral/20 p-4">
-        <legend className="px-1 text-sm font-medium text-navy-text">
-          Safety check
-        </legend>
-        <div className="flex items-start gap-3">
-          <Checkbox
-            id="urgent-risk"
-            checked={state.reportsUrgentRisk}
-            onCheckedChange={(checked) =>
-              update("reportsUrgentRisk", checked === true)
-            }
-          />
-          <Label
-            htmlFor="urgent-risk"
-            className="text-sm font-normal leading-snug text-navy-text/80"
-          >
-            I need immediate help or feel at urgent risk of harm
-          </Label>
-        </div>
-        <div className="flex items-start gap-3">
-          <Checkbox
-            id="need-support"
-            checked={state.reportsNeedForSupport}
-            onCheckedChange={(checked) =>
-              update("reportsNeedForSupport", checked === true)
-            }
-          />
-          <Label
-            htmlFor="need-support"
-            className="text-sm font-normal leading-snug text-navy-text/80"
-          >
-            I could use extra support today (not an emergency)
-          </Label>
-        </div>
-      </fieldset>
-
-      <Button
-        type="button"
-        variant="ghost"
-        className="px-0 text-ocean-deep focus-visible:ring-2 focus-visible:ring-ocean-deep/40"
-        onClick={() => setShowOptional((current) => !current)}
-        aria-expanded={showOptional}
-      >
-        {showOptional ? "Hide optional details" : "Add optional details"}
-      </Button>
-
-      {showOptional ? (
-        <div className="space-y-4 rounded-xl border border-ocean-light/40 bg-white/70 p-4">
-          <ScoreInput
-            id="sleep"
-            label="Sleep (optional)"
-            value={state.sleep ?? 5}
-            onChange={(value) => update("sleep", value)}
-            lowLabel="Poor"
-            highLabel="Rested"
-          />
-          <div className="space-y-2">
-            <Label htmlFor="food">Food</Label>
-            <Input
-              id="food"
-              value={state.foodStatus ?? ""}
-              onChange={(e) => update("foodStatus", e.target.value || null)}
-              placeholder="e.g. met, partial, skipped"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="hydration">Hydration</Label>
-            <Input
-              id="hydration"
-              value={state.hydrationStatus ?? ""}
-              onChange={(e) => update("hydrationStatus", e.target.value || null)}
-              placeholder="e.g. low, okay"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="movement">Movement</Label>
-            <Input
-              id="movement"
-              value={state.movementStatus ?? ""}
-              onChange={(e) => update("movementStatus", e.target.value || null)}
-              placeholder="e.g. none yet, light walk"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="context-tags">Context tags</Label>
-            <Input
-              id="context-tags"
-              value={contextTagsInput}
-              onChange={(e) => setContextTagsInput(e.target.value)}
-              placeholder="work deadline, travel, social (comma-separated)"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="heavy">Anything heavy or important today?</Label>
-            <Textarea
-              id="heavy"
-              value={state.heavyOrImportantText ?? ""}
-              onChange={(e) =>
-                update("heavyOrImportantText", e.target.value || null)
-              }
-              rows={2}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="substance">Alcohol or substance context</Label>
-            <Textarea
-              id="substance"
-              value={state.alcoholOrSubstanceContext ?? ""}
-              onChange={(e) =>
-                update("alcoholOrSubstanceContext", e.target.value || null)
-              }
-              rows={2}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="note">Anything else?</Label>
-            <Textarea
-              id="note"
-              value={state.optionalNote ?? ""}
-              onChange={(e) => update("optionalNote", e.target.value || null)}
-              rows={2}
-            />
-          </div>
-        </div>
-      ) : null}
+      </section>
 
       {error ? <FormErrorBanner message={error} /> : null}
 
       <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
         {isSubmitting ? "Finding your next move..." : "See my right-sized move"}
       </Button>
+
+      <div className="border-t border-ocean-light/30 pt-4">
+        <Button
+          type="button"
+          variant="ghost"
+          className="h-auto px-0 py-1 text-sm text-navy-text/60 hover:text-ocean-deep focus-visible:ring-2 focus-visible:ring-ocean-deep/40"
+          onClick={() => setShowOptional((current) => !current)}
+          aria-expanded={showOptional}
+        >
+          {showOptional
+            ? "Hide optional context"
+            : "Add context (optional) — sleep, food, safety, notes"}
+        </Button>
+        <p className="mt-1 text-xs text-navy-text/50">
+          You can add context, but you do not have to.
+        </p>
+
+        {showOptional ? (
+          <div className="mt-4 space-y-5 rounded-xl border border-dashed border-ocean-light/50 bg-sand-neutral/10 p-4">
+            <fieldset className="space-y-3">
+              <legend className="text-sm font-medium text-navy-text/80">
+                Safety &amp; support
+              </legend>
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="urgent-risk"
+                  checked={state.reportsUrgentRisk}
+                  onCheckedChange={(checked) =>
+                    update("reportsUrgentRisk", checked === true)
+                  }
+                />
+                <Label
+                  htmlFor="urgent-risk"
+                  className="text-sm font-normal leading-snug text-navy-text/75"
+                >
+                  I need immediate help or feel at urgent risk of harm
+                </Label>
+              </div>
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="need-support"
+                  checked={state.reportsNeedForSupport}
+                  onCheckedChange={(checked) =>
+                    update("reportsNeedForSupport", checked === true)
+                  }
+                />
+                <Label
+                  htmlFor="need-support"
+                  className="text-sm font-normal leading-snug text-navy-text/75"
+                >
+                  I could use extra support today (not an emergency)
+                </Label>
+              </div>
+            </fieldset>
+
+            <ScoreInput
+              id="sleep"
+              label="Sleep"
+              value={state.sleep ?? 5}
+              onChange={(value) => update("sleep", value)}
+              lowLabel="Poor"
+              highLabel="Rested"
+            />
+            <div className="space-y-2">
+              <Label htmlFor="food">Food</Label>
+              <Input
+                id="food"
+                value={state.foodStatus ?? ""}
+                onChange={(e) => update("foodStatus", e.target.value || null)}
+                placeholder="e.g. met, partial, skipped"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="hydration">Hydration</Label>
+              <Input
+                id="hydration"
+                value={state.hydrationStatus ?? ""}
+                onChange={(e) => update("hydrationStatus", e.target.value || null)}
+                placeholder="e.g. low, okay"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="movement">Movement</Label>
+              <Input
+                id="movement"
+                value={state.movementStatus ?? ""}
+                onChange={(e) => update("movementStatus", e.target.value || null)}
+                placeholder="e.g. none yet, light walk"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="context-tags">Context tags</Label>
+              <Input
+                id="context-tags"
+                value={contextTagsInput}
+                onChange={(e) => setContextTagsInput(e.target.value)}
+                placeholder="work deadline, travel (comma-separated)"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="heavy">Anything heavy today?</Label>
+              <Textarea
+                id="heavy"
+                value={state.heavyOrImportantText ?? ""}
+                onChange={(e) =>
+                  update("heavyOrImportantText", e.target.value || null)
+                }
+                rows={2}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="substance">Alcohol or substance context</Label>
+              <Textarea
+                id="substance"
+                value={state.alcoholOrSubstanceContext ?? ""}
+                onChange={(e) =>
+                  update("alcoholOrSubstanceContext", e.target.value || null)
+                }
+                rows={2}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="note">Short note</Label>
+              <Textarea
+                id="note"
+                value={state.optionalNote ?? ""}
+                onChange={(e) => update("optionalNote", e.target.value || null)}
+                rows={2}
+              />
+            </div>
+          </div>
+        ) : null}
+      </div>
     </form>
   )
 }

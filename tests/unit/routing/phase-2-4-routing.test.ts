@@ -28,13 +28,13 @@ describe('root and legacy routing', () => {
     expect(BASELINE_ROUTES.legacy).toBe('/legacy')
   })
 
-  it('today page links to check-in and history', () => {
+  it('today page uses command center', () => {
     const source = readFileSync(
       join(projectRoot, 'app/(app)/today/page.tsx'),
       'utf8'
     )
-    expect(source).toContain('BASELINE_ROUTES.checkIn')
-    expect(source).toContain('BASELINE_ROUTES.history')
+    expect(source).toContain('TodayCommandCenter')
+    expect(source).not.toContain('BASELINE_ROUTES.checkIn')
   })
 
   it('app header includes today and history navigation', () => {

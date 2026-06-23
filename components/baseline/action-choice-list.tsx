@@ -36,6 +36,7 @@ export function ActionChoiceList({ interpretation }: ActionChoiceListProps) {
   const [accepted, setAccepted] = useState<AcceptedAction | null>(null)
   const [pendingKey, setPendingKey] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [showAlternatives, setShowAlternatives] = useState(false)
   const [showCustom, setShowCustom] = useState(false)
   const [customTitle, setCustomTitle] = useState("")
   const [customDescription, setCustomDescription] = useState("")
@@ -103,52 +104,90 @@ export function ActionChoiceList({ interpretation }: ActionChoiceListProps) {
     )
   }
 
+  const primary = interpretation.primaryAction
+  const alternatives = interpretation.alternatives
+
   return (
     <section className="space-y-4" aria-busy={isBusy}>
       <div>
         <h3 className="text-lg font-semibold text-navy-text">
-          Choose a right-sized next move
+          Right-sized next move
         </h3>
-        <p className="mt-1 text-sm text-navy-text/70">
-          Pick what fits today. You can always choose something smaller than the
-          original plan.
+        <p className="mt-1 text-sm text-navy-text/65">
+          Here is the move that fits your current state. Accept it, or pick
+          something smaller.
         </p>
       </div>
 
       {error ? <FormErrorBanner message={error} /> : null}
 
-      <ActionOptionCard
-        label="Suggested next move"
-        action={interpretation.primaryAction}
-        pending={pendingKey === interpretation.primaryAction.id}
-        disabled={isBusy}
-        onAccept={() => accept("primary", interpretation.primaryAction)}
-      />
-
-      {interpretation.alternatives.map((action) => (
-        <ActionOptionCard
-          key={action.id}
-          label="Alternative"
-          action={action}
-          pending={pendingKey === action.id}
+      <div className="rounded-xl border-2 border-ocean-deep/20 bg-white p-4 shadow-sm">
+        <p className="text-xs font-semibold uppercase tracking-wide text-ocean-deep">
+          Do this next
+        </p>
+        <h4 className="mt-2 text-lg font-semibold text-navy-text">{primary.title}</h4>
+        <p className="mt-1 text-sm leading-relaxed text-navy-text/75">
+          {primary.description}
+        </p>
+        {primary.estimatedMinutes ? (
+          <p className="mt-2 text-xs text-navy-text/50">
+            About {primary.estimatedMinutes} min
+          </p>
+        ) : null}
+        <Button
+          type="button"
+          className="mt-4 w-full"
+          size="lg"
           disabled={isBusy}
-          onAccept={() => accept("alternative", action)}
-        />
-      ))}
+          aria-busy={pendingKey === primary.id}
+          onClick={() => accept("primary", primary)}
+        >
+          {pendingKey === primary.id ? "Saving..." : "Accept this move"}
+        </Button>
+      </div>
+
+      {alternatives.length > 0 ? (
+        <div className="rounded-xl border border-ocean-light/40 bg-white/60">
+          <button
+            type="button"
+            className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-navy-text/70 hover:text-navy-text"
+            onClick={() => setShowAlternatives((v) => !v)}
+            aria-expanded={showAlternatives}
+          >
+            <span>Other options ({alternatives.length})</span>
+            <span className="text-xs text-navy-text/45">
+              {showAlternatives ? "Hide" : "Show"}
+            </span>
+          </button>
+          {showAlternatives ? (
+            <div className="space-y-3 border-t border-ocean-light/30 px-4 pb-4 pt-3">
+              {alternatives.map((action) => (
+                <ActionOptionCard
+                  key={action.id}
+                  action={action}
+                  pending={pendingKey === action.id}
+                  disabled={isBusy}
+                  onAccept={() => accept("alternative", action)}
+                />
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
 
       {!showCustom ? (
         <Button
           type="button"
-          variant="outline"
-          className="w-full"
+          variant="ghost"
+          className="w-full text-sm text-navy-text/60"
           disabled={isBusy}
           onClick={() => setShowCustom(true)}
         >
-          Choose a different move
+          Choose your own move
         </Button>
       ) : (
-        <div className="space-y-3 rounded-xl border border-ocean-light/60 bg-white/80 p-4">
-          <p className="text-sm font-medium text-navy-text">Your own next move</p>
+        <div className="space-y-3 rounded-xl border border-dashed border-ocean-light/50 bg-white/70 p-4">
+          <p className="text-sm font-medium text-navy-text">Your own move</p>
           <div className="space-y-2">
             <Label htmlFor="custom-title">Title</Label>
             <Input
@@ -165,8 +204,8 @@ export function ActionChoiceList({ interpretation }: ActionChoiceListProps) {
               id="custom-description"
               value={customDescription}
               onChange={(e) => setCustomDescription(e.target.value)}
-              placeholder="Keep it small and specific."
-              rows={3}
+              placeholder="Keep it small."
+              rows={2}
               disabled={isBusy}
             />
           </div>
@@ -206,40 +245,30 @@ export function ActionChoiceList({ interpretation }: ActionChoiceListProps) {
 }
 
 function ActionOptionCard({
-  label,
   action,
   pending,
   disabled,
   onAccept,
 }: {
-  label: string
   action: BaselineActionDTO
   pending: boolean
   disabled: boolean
   onAccept: () => void
 }) {
   return (
-    <div className="rounded-xl border border-ocean-light/50 bg-white/90 p-4">
-      <p className="text-xs font-semibold uppercase tracking-wide text-ocean-deep/80">
-        {label}
-      </p>
-      <h4 className="mt-2 font-semibold text-navy-text">{action.title}</h4>
-      <p className="mt-1 text-sm leading-relaxed text-navy-text/75">
-        {action.description}
-      </p>
-      {action.estimatedMinutes ? (
-        <p className="mt-2 text-xs text-navy-text/55">
-          About {action.estimatedMinutes} minutes
-        </p>
-      ) : null}
+    <div className="rounded-lg border border-ocean-light/40 bg-white/90 p-3">
+      <h4 className="font-medium text-navy-text">{action.title}</h4>
+      <p className="mt-1 text-sm text-navy-text/70">{action.description}</p>
       <Button
         type="button"
-        className="mt-4 w-full"
+        variant="outline"
+        size="sm"
+        className="mt-3 w-full"
         disabled={disabled}
         aria-busy={pending}
         onClick={onAccept}
       >
-        {pending ? "Saving..." : "Accept this move"}
+        {pending ? "Saving..." : "Accept"}
       </Button>
     </div>
   )

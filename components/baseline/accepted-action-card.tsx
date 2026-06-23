@@ -5,6 +5,7 @@ import {
   shouldShowReflectCTA,
   shouldShowReflectionSaved,
 } from "@/lib/baseline/result-reflection-section"
+import { BASELINE_ROUTES } from "@/lib/baseline/routes"
 import { Button } from "@/components/ui/button"
 
 interface AcceptedActionCardProps {
@@ -17,39 +18,43 @@ export function AcceptedActionCard({
   reflectionFollowUp,
 }: AcceptedActionCardProps) {
   return (
-    <section className="rounded-2xl border border-success-green/30 bg-success-green/10 p-6">
+    <section className="rounded-2xl border border-success-green/30 bg-success-green/10 p-5 sm:p-6">
       <p className="text-xs font-semibold uppercase tracking-wide text-success-green">
-        Accepted next move
+        Do this next
       </p>
       <h3 className="mt-2 text-xl font-semibold text-navy-text">{action.title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-navy-text/80">
         {action.description}
       </p>
       {action.estimatedMinutes ? (
-        <p className="mt-3 text-xs text-navy-text/60">
-          About {action.estimatedMinutes} minutes
+        <p className="mt-2 text-xs text-navy-text/55">
+          About {action.estimatedMinutes} min
         </p>
       ) : null}
 
       {shouldShowReflectCTA(reflectionFollowUp) &&
       reflectionFollowUp.kind === "reflect" ? (
-        <div className="mt-5 space-y-2">
+        <div className="mt-5 space-y-3">
           <p className="text-sm text-navy-text/70">
-            When you are ready, reflect on what this move protected.
+            You can reflect after — no rush.
           </p>
-          <Button asChild className="w-full sm:w-auto">
-            <Link href={reflectionFollowUp.reflectPath}>Reflect on this</Link>
-          </Button>
-          <p className="text-xs text-navy-text/55">You can reflect later from history too.</p>
+          <div className="flex flex-wrap gap-3">
+            <Button asChild className="w-full sm:w-auto">
+              <Link href={reflectionFollowUp.reflectPath}>Reflect now</Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full sm:w-auto">
+              <Link href={BASELINE_ROUTES.today}>Back to Today</Link>
+            </Button>
+          </div>
         </div>
       ) : null}
 
       {shouldShowReflectionSaved(reflectionFollowUp) &&
       reflectionFollowUp.kind === "complete" ? (
         <div className="mt-5 space-y-2">
-          <p className="text-sm font-medium text-success-green">Reflection saved</p>
+          <p className="text-sm font-medium text-success-green">Loop complete</p>
           <Button asChild variant="outline" className="w-full sm:w-auto">
-            <Link href={reflectionFollowUp.todayPath}>Back to today</Link>
+            <Link href={reflectionFollowUp.todayPath}>Back to Today</Link>
           </Button>
         </div>
       ) : null}

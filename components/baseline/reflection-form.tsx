@@ -43,6 +43,7 @@ export function ReflectionForm({
     DEFAULT_REFLECTION_FORM_STATE
   )
   const [includeScore, setIncludeScore] = useState(false)
+  const [showNotes, setShowNotes] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -84,30 +85,26 @@ export function ReflectionForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6" aria-busy={isSubmitting}>
+    <form onSubmit={handleSubmit} className="space-y-5" aria-busy={isSubmitting}>
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold text-navy-text">
-          What happened after the move?
-        </h1>
+        <h1 className="text-2xl font-bold text-navy-text">Did the move help?</h1>
         <p className="text-sm leading-relaxed text-navy-text/70">
-          A quick note — not a grade. This helps you notice what protects your
-          baseline over time.
+          A quick close-the-loop note — imperfect is fine. This helps PMBaseline
+          learn what supports your baseline. You are not being graded.
         </p>
         {reflectionPrompt ? (
-          <p className="rounded-lg border border-ocean-light/50 bg-ocean-light/15 px-3 py-2 text-sm text-navy-text/80">
-            {reflectionPrompt}
-          </p>
+          <p className="text-xs text-navy-text/55">{reflectionPrompt}</p>
         ) : null}
       </div>
 
       <fieldset className="space-y-3">
         <legend className="text-sm font-medium text-navy-text">
-          How did it land?
+          Did the move help?
         </legend>
         <div
           className="grid grid-cols-2 gap-2 sm:grid-cols-4"
           role="radiogroup"
-          aria-label="How did it land?"
+          aria-label="Did the move help?"
         >
           {EFFECT_OPTIONS.map((effect) => (
             <Button
@@ -127,7 +124,9 @@ export function ReflectionForm({
       </fieldset>
 
       <div className="space-y-2">
-        <Label htmlFor="what-changed">What changed?</Label>
+        <Label htmlFor="what-changed" className="text-navy-text/80">
+          What changed? <span className="font-normal text-navy-text/50">(optional)</span>
+        </Label>
         <Textarea
           id="what-changed"
           value={state.whatChanged}
@@ -138,31 +137,7 @@ export function ReflectionForm({
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="what-protected">What did this protect?</Label>
-        <Textarea
-          id="what-protected"
-          value={state.whatWasProtected}
-          onChange={(e) => update("whatWasProtected", e.target.value)}
-          placeholder="Energy, mood, relationships, baseline..."
-          rows={2}
-          disabled={isSubmitting}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="lesson">What did you learn about your baseline?</Label>
-        <Textarea
-          id="lesson"
-          value={state.lesson}
-          onChange={(e) => update("lesson", e.target.value)}
-          placeholder="Optional note for future you."
-          rows={2}
-          disabled={isSubmitting}
-        />
-      </div>
-
-      <div className="space-y-3 rounded-xl border border-ocean-light/40 bg-white/70 p-4">
+      <div className="space-y-3 rounded-xl border border-ocean-light/30 bg-white/60 p-4">
         <div className="flex items-start gap-3">
           <Checkbox
             id="include-score"
@@ -172,9 +147,9 @@ export function ReflectionForm({
           />
           <Label
             htmlFor="include-score"
-            className="text-sm font-normal leading-snug text-navy-text"
+            className="text-sm font-normal leading-snug text-navy-text/80"
           >
-            Add a final baseline score for today (optional)
+            Add a final baseline score (optional)
           </Label>
         </div>
         {includeScore ? (
@@ -189,14 +164,48 @@ export function ReflectionForm({
         ) : null}
       </div>
 
+      <Button
+        type="button"
+        variant="ghost"
+        className="h-auto px-0 text-sm text-navy-text/55 hover:text-ocean-deep"
+        onClick={() => setShowNotes((v) => !v)}
+        aria-expanded={showNotes}
+      >
+        {showNotes ? "Hide extra notes" : "Add extra notes (optional)"}
+      </Button>
+
+      {showNotes ? (
+        <div className="space-y-3 rounded-xl border border-dashed border-ocean-light/40 p-4">
+          <div className="space-y-2">
+            <Label htmlFor="what-protected">What did this protect?</Label>
+            <Textarea
+              id="what-protected"
+              value={state.whatWasProtected}
+              onChange={(e) => update("whatWasProtected", e.target.value)}
+              placeholder="Energy, mood, baseline..."
+              rows={2}
+              disabled={isSubmitting}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="lesson">What did you learn?</Label>
+            <Textarea
+              id="lesson"
+              value={state.lesson}
+              onChange={(e) => update("lesson", e.target.value)}
+              placeholder="Optional."
+              rows={2}
+              disabled={isSubmitting}
+            />
+          </div>
+        </div>
+      ) : null}
+
       {error ? <FormErrorBanner message={error} /> : null}
 
       <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
-        {isSubmitting ? "Saving reflection..." : "Save reflection"}
+        {isSubmitting ? "Saving..." : "Save reflection"}
       </Button>
-      <p className="text-center text-xs text-navy-text/55">
-        You can reflect later from history if you need to step away first.
-      </p>
     </form>
   )
 }

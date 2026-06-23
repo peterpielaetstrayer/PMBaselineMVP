@@ -125,3 +125,11 @@
 **Why:** Reflection closes the learning loop without requiring analytics, streaks, or AI synthesis in MVP.
 
 **Implications:** Action records mark `completed` after reflection submit. One reflection per check-in; idempotent replay returns the existing reflection.
+
+## 2026-06-14 — Improve non-AI ease-of-use before AI
+
+**Decision:** Phase 2.6 prioritizes a faster, lower-friction canonical loop (command-center Today, quick pulse check-in, simplified result/reflect) before Phase 3 AI work.
+
+**Why:** Real use showed the product is close to the vision but still too heavy for daily repetition. AI on a clunky loop would amplify confusion.
+
+**Implications:** Phase 3 starts only after the non-AI loop feels easy enough to use repeatedly. No new persistence or engine changes required for ease-of-use passes.

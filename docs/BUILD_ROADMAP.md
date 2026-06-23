@@ -110,7 +110,7 @@ Deliverables:
 
 ### Phase 2.5 — MVP polish and hardening
 
-Status: **current increment**.
+Status: **complete**.
 
 Deliverables:
 
@@ -127,6 +127,25 @@ Success criteria:
 - a signed-in user can complete the full loop repeatedly without confusing duplicates or raw errors;
 - canonical routes feel calm and mobile-friendly for daily personal use;
 - documentation clearly marks Phase 3 as bounded AI on a stable non-AI foundation.
+
+### Phase 2.6 — Ease-of-use / one-minute loop pass
+
+Status: **current increment**.
+
+Deliverables:
+
+- `/today` as a command center with unfinished-loop priority;
+- faster two-layer check-in (quick pulse + optional context);
+- reduced cognitive load on result, action accept, and reflection;
+- lighter history cards;
+- `lib/baseline/loop-step` helpers for next-step CTAs.
+
+Success criteria:
+
+- a user can open the app and complete the essential loop with minimal friction;
+- unfinished loops are obvious before starting a new check-in;
+- the app feels like a baseline companion, not a tracker or intake form;
+- Phase 3 AI work begins only after this ease-of-use bar is met.
 
 ### Phase 2 completion criteria
 
@@ -232,11 +251,11 @@ Success condition:
 
 After pulling `master` in Cursor:
 
-1. run through `docs/SMOKE_TEST_CHECKLIST.md` on a local build;
-2. verify the full loop feels stable on mobile;
-3. confirm history and today show stored state without recomputing;
-4. begin Phase 3 only after Phase 2.5 success criteria are met.
+1. use the app daily and confirm the one-minute loop feels fast enough;
+2. run through `docs/SMOKE_TEST_CHECKLIST.md` on mobile;
+3. verify unfinished loops surface clearly on `/today`;
+4. begin Phase 3 only after Phase 2.6 success criteria are met.
 
 Reason:
 
-The non-AI canonical loop is feature-complete through Phase 2.4. Phase 2.5 hardens it for real use before adding bounded AI interpretation.
+The canonical loop is feature-complete and hardened. Phase 2.6 tightens ease-of-use so repeated personal use feels natural before adding bounded AI interpretation.
