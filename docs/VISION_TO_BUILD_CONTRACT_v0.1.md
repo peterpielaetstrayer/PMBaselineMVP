@@ -64,3 +64,17 @@ The current standalone Foundation Lab covers only fragments of Today and Experie
 Inherited dependency audit reports 15 advisories, including four critical. Triage before broader use. Verify RLS with two accounts, auth, browser/mobile QA, accessibility, home-screen reliability and privacy controls before sensitive records or outside beta. No production promotion, public claims, personal data imports or cross-app sync without separate approval.
 
 Stop or revise if users feel judged or pressured, recommendations remain generic, data claims exceed evidence, personal data crosses boundaries, or the app becomes a generic everything manager.
+
+
+
+## Guest mode and data-portability invariant
+
+**User decision (November 11, 2026):** PMBaseline should be usable without registration, with genuinely local-only records and manual data import/export. A disabled Supabase backend should not prevent a guest from practicing the Baseline Method. The standalone HTML lab was a precursor; this must live in the integrated application.
+
+**Implemented founder slice:** The /guest route covers My Path, Today (self-chosen mode/next action), brief reflection, History, and Data. Local browser storage has a versioned JSON backup format and explicit download/restore confirmation. A narrow CSV activity importer is supported with preview, validation and duplicate prevention; it is not a general health-file decoder.
+
+**Long-view architecture:** Guest and signed-in experiences are **two storage contexts for one underlying Baseline Method**, not separate products. The present guest UI duplicates some signed-in interface logic as an expedient test, so shared domain components and a storage-adapter boundary are a priority before expanding plan-aware recommendations or AI. Do not silently migrate guest records to cloud accounts. A future migration requires consent, source provenance, conflict handling, backups and verification.
+
+**Data import vision:** Distinguish (1) PMBaseline backups, (2) known CSV schemas, (3) explicitly supported wearable/app exports, and (4) arbitrary attachments requiring separately designed on-device file storage and safe interpretation. Never assert that an arbitrary upload has been understood; preview mappings and let the person confirm. For larger files/long-term attachments, a governed IndexedDB-based library may be preferable to localStorage.
+
+**Current limitations:** Browser storage is origin-specific, unencrypted, limited, and can be cleared by the browser or user. Use the stable branch-preview hostname during founder QA. Vercel SSO protection is separate from PMBaseline guest sign-in. No production migration or external beta authorization.
