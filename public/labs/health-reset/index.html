@@ -216,7 +216,7 @@
         (sameAction ? "Not right now is okay, too." : "Earlier today: you passed on " + recordedChoice + ".");
       document.getElementById("reflection-context").textContent = !day.action ?
         "After you choose a next step, you can note how it went. No long journal entry needed." :
-        "How did it go? " + (day.actionLabel || "Think about the choice you made earlier.")
+        "How did it go? " + (day.actionLabel || "Think about the choice you made earlier.");
       ["movement","nourishment","recovery"].forEach(function (key) {
         document.querySelector('[data-anchor="' + key + '"]').checked = day[key];
       });
