@@ -19,7 +19,7 @@
 - No copied personal health records or seeded medical data in the app or repository.
 - Only local device storage: the records will not sync across devices and may be deleted by the browser.
 - The mode selection itself is intentionally not persisted.
-- This is **not medical advice**. Chest symptoms and alcohol-withdrawal risks must be clinically handled rather than triaged by a routine habit interface.
+- This is an everyday self-regulation experiment, not a clinical tool. Urgent or concerning health and safety needs require real-world support, not routine habit recommendations.
 - The suggestions intentionally avoid strenuous workout prescriptions. This does not establish that walking is safe for a symptomatic user.
 - This standalone lab path is outside the app's authenticated `/(app)` route group; preview access must be restricted at the platform level before live personal use, even though the branch contains no sensitive data.
 - Offline, service worker, Android add-to-home-screen, browser history, screen readers, and security have not yet been browser-tested. Do not claim this is an installed, validated app.
@@ -37,3 +37,7 @@
 ## Product relationship
 
 The existing canonical PMBaseline user path remains unchanged. This lab tests a **personal health-program experience slice**, not a rebrand or evidence of a new general-purpose fitness tracking product. The 30-day plan and current goal negotiations remain owned by Peter OS.
+
+## November 11 — founder feedback / voice revision v0.1.1
+
+Peter found the first screen's health warnings and medical language intrusive. Removed the specific symptom warning from the primary action flow, replaced clinical conditions and action phrasing with plain, friendly everyday language, and kept one small, non-specific help reminder in the About section. Do not hard-code private user health context into product UI. No changes to app data storage, behavior logic, or production paths. Browser-level QA is still required.

@@ -46,7 +46,7 @@
     .progress div{height:100%;width:0%;background:var(--green);transition:width .15s}
     .historyrow{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding:9px 0;gap:12px;font-size:.85rem}
     .historydots{letter-spacing:.13em;color:var(--green);font-size:1.12rem;white-space:nowrap}
-    .note{padding:12px 13px;border-left:3px solid var(--gold);background:#faf1df;border-radius:5px;font-size:.84rem;margin-top:14px}
+    
     footer{font-size:.78rem;color:var(--muted);margin-top:20px}
     .linkbutton{border:0;background:none;text-decoration:underline;text-underline-offset:3px;color:var(--green);padding:5px;cursor:pointer;font-size:.8rem}
     .feedback{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0 0}
@@ -58,49 +58,49 @@
 </head>
 <body>
   <main>
-    <div class="top"><div class="brand">PMBASELINE <span class="subdued">/ FOUNDATION LAB</span></div><div class="pill">Private-device prototype</div></div>
+    <div class="top"><div class="brand">PMBASELINE <span class="subdued">/ FOUNDATION LAB</span></div><div class="pill">Personal test version</div></div>
     <header class="hero">
       <div class="eyebrow subdued" id="phase">30-day reset · Nov 11–Dec 10</div>
       <h1>Make today workable.</h1>
-      <p>Notice what kind of day it is, choose one appropriate move, and learn from what happens. Not a performance scorecard.</p>
+      <p>A little structure for the day you actually have. Start small, keep what helps, and build from there.</p>
     </header>
     <div class="cols">
       <div class="stack">
         <section class="panel" aria-labelledby="orientation-title">
           <div class="eyebrow subdued">01 · Orient</div>
-          <h2 id="orientation-title">What kind of day is this?</h2>
-          <p class="small subdued">Pick the support level that fits. This isn't a diagnosis or an automated assessment.</p>
+          <h2 id="orientation-title">What would help today?</h2>
+          <p class="small subdued">You know your day best. Pick what feels right—you can change it anytime.</p>
           <div class="mode-list" role="group" aria-label="Choose your support mode">
-            <button class="mode" data-mode="stabilize" aria-pressed="false">Stabilize<span>Protect essentials</span></button>
-            <button class="mode" data-mode="rebuild" aria-pressed="true">Rebuild<span>Restore momentum</span></button>
-            <button class="mode" data-mode="maintain" aria-pressed="false">Maintain<span>Keep your rhythm</span></button>
-            <button class="mode" data-mode="expand" aria-pressed="false">Expand<span>Grow carefully</span></button>
+            <button class="mode" data-mode="stabilize" aria-pressed="false">Stabilize<span>Take care of the basics</span></button>
+            <button class="mode" data-mode="rebuild" aria-pressed="true">Rebuild<span>Find your footing</span></button>
+            <button class="mode" data-mode="maintain" aria-pressed="false">Maintain<span>Keep it going</span></button>
+            <button class="mode" data-mode="expand" aria-pressed="false">Expand<span>Try a little more</span></button>
           </div>
           <div class="action" aria-live="polite" aria-atomic="true">
-            <div class="eyebrow subdued">02 · One next move</div>
-            <h3 id="action-title">Take one comfortable step.</h3>
-            <p id="action-detail" class="small">Choose an easy action that supports your baseline.</p>
+            <div class="eyebrow subdued">02 · Your next step</div>
+            <h3 id="action-title">One small thing at a time.</h3>
+            <p id="action-detail" class="small">Choose something useful that feels doable right now.</p>
           </div>
           <div class="buttonrow">
             <button class="button" type="button" id="mark-done">I did this</button>
-            <button class="button ghost" type="button" id="make-smaller">Make it easier</button>
-            <button class="button ghost" type="button" id="alternative">Another option</button>
-            <button class="button ghost" type="button" id="not-now">Not now</button>
+            <button class="button ghost" type="button" id="make-smaller">Make it smaller</button>
+            <button class="button ghost" type="button" id="alternative">Try another</button>
+            <button class="button ghost" type="button" id="not-now">Not right now</button>
           </div>
           <p id="action-status" class="status" role="status"></p>
-          <div class="note">Safety first: this prototype is not medical guidance. Do not treat unresolved chest or arm pain as a prompt to exercise. Seek urgent evaluation for active concerning chest symptoms; discuss strenuous training with a clinician if symptoms remain unassessed.</div>
+          
         </section>
         <section class="panel" aria-labelledby="anchors-title">
           <div class="eyebrow subdued">03 · Your daily foundations</div>
-          <h2 id="anchors-title">Three things worth protecting</h2>
-          <p class="small subdued">Check these only if they actually happened today. These track habits, not health outcomes.</p>
+          <h2 id="anchors-title">Three things to look after</h2>
+          <p class="small subdued">Check off what you did. There is no perfect-day requirement.</p>
           <div id="anchor-list">
-            <label class="anchor"><input type="checkbox" data-anchor="movement"><span><strong>Comfortable movement, if appropriate</strong><em>A brief, symptom-free walk or other safe movement</em></span></label>
-            <label class="anchor"><input type="checkbox" data-anchor="nourishment"><span><strong>Nourishment</strong><em>A protein-forward meal with produce</em></span></label>
-            <label class="anchor"><input type="checkbox" data-anchor="recovery"><span><strong>Recovery</strong><em>A deliberate wind-down and sleep opportunity</em></span></label>
+            <label class="anchor"><input type="checkbox" data-anchor="movement"><span><strong>Move a little</strong><em>A short easy walk or some gentle movement—only if it feels right</em></span></label>
+            <label class="anchor"><input type="checkbox" data-anchor="nourishment"><span><strong>Eat something nourishing</strong><em>A satisfying meal with protein and something fresh</em></span></label>
+            <label class="anchor"><input type="checkbox" data-anchor="recovery"><span><strong>Make room for rest</strong><em>A calmer evening and enough time for sleep</em></span></label>
           </div>
           <div class="progress" role="progressbar" aria-label="Today's foundation anchors" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" id="progress"><div id="progress-bar"></div></div>
-          <p class="small subdued" id="anchor-count" role="status">0 of 3 foundations noted.</p>
+          <p class="small subdued" id="anchor-count" role="status">0 of 3 things checked.</p>
         </section>
       </div>
       <div class="stack">
@@ -122,18 +122,19 @@
           <p class="small subdued" id="history-count"></p>
         </section>
         <section class="panel" aria-labelledby="privacy-title">
-          <div class="eyebrow subdued">Prototype boundary</div>
-          <h2 id="privacy-title">Your data stays here</h2>
-          <p class="small subdued">This version keeps only anchor completions, action status, and simple feedback in this browser's local storage. No account, AI, WHOOP, or Peter OS sync. No medical details or substance-use entries. Device storage can be lost; this is not a secure medical record.</p>
+          <div class="eyebrow subdued">About this version</div>
+          <h2 id="privacy-title">Your choices stay on this device</h2>
+          <p class="small subdued">This early version saves your checkmarks and reflections in this browser only. It does not sync with your other apps yet. You can export or clear it anytime. Browser data can be lost.</p>
           <div class="buttonrow">
             <button class="button ghost tiny" type="button" id="export">Export this device's log</button>
             <button class="button ghost tiny" type="button" id="clear">Delete local log</button>
           </div>
           <p class="small subdued" id="storage-status" role="status"></p>
+          <p class="small subdued">For urgent health or safety concerns, get real-world help. This little tool is for everyday choices.</p>
         </section>
       </div>
     </div>
-    <footer>Experimental founder experience · 2026. No medical inference, data synchronization, AI personalization, or validated behavior-change claims.</footer>
+    <footer>PMBaseline Foundation Lab · An early personal experiment. Keep what helps and change what doesn’t.</footer>
   </main>
   <script>
   (function () {
@@ -162,20 +163,20 @@
     document.getElementById("phase").textContent = phaseText;
     var options = {
       stabilize: [
-        ["Protect essentials", "Make room for food, water, and rest. Reach out for appropriate support when you need it.", "Choose just one essential need to address."],
-        ["Reduce the load", "Postpone a nonessential task and focus on what actually matters today.", "Release one optional expectation."]
+        ["Take care of the basics", "Start with something simple: water, food, rest, or a little breathing room.", "Pick one basic need to take care of."],
+        ["Take something off your plate", "What could you leave for tomorrow? Give yourself permission to do less.", "Let one optional task go."]
       ],
       rebuild: [
-        ["A modest reset", "If physically comfortable and medically appropriate, take a brief easy walk. Otherwise choose food or rest.", "Stand up, stretch gently if comfortable, or protect a rest break."],
-        ["Make the next meal easy", "Prepare one protein-forward meal with produce using food already available.", "Choose a simple nutritious food that requires little effort."]
+        ["Find a small foothold", "If you feel up to it, try a short easy walk. Or start with food, fresh air, or rest.", "Open a window, sit outside, or take a quiet break."],
+        ["Make your next meal easy", "Put together a satisfying meal with some protein and whatever fresh food you have.", "Choose one simple thing to eat."]
       ],
       maintain: [
-        ["Keep your usual rhythm", "Follow a comfortable movement and meal routine without adding extra demands.", "Protect one existing habit."],
-        ["Prepare for tomorrow", "Set out what you need for tomorrow's meal and choose a realistic bedtime.", "Make one small preparation."]
+        ["Keep your rhythm", "Follow the routines already working for you. No need to add more today.", "Choose one habit to keep."],
+        ["Make tomorrow easier", "Get one thing ready for your morning and leave time to wind down tonight.", "Set out one thing for tomorrow."]
       ],
       expand: [
-        ["Progress thoughtfully", "If symptoms are resolved and activity has been medically cleared, consider a small, planned progression; otherwise prioritize recovery.", "Keep today's workload steady."],
-        ["Improve the environment", "Prepare one reusable meal or reduce friction for tomorrow's routine.", "Prepare one item for tomorrow."]
+        ["Try a little more", "If you feel well and your usual activities are safe for you, add one modest challenge—not five.", "Keep your usual routine. That counts."],
+        ["Make the good choice easier", "Prep a meal, clear a small space, or make tomorrow's routine simpler.", "Make one helpful thing easier."]
       ]
     };
     function getDay() {
@@ -203,15 +204,15 @@
       var action = options[mode][option % options[mode].length];
       document.getElementById("action-title").textContent = action[0];
       document.getElementById("action-detail").textContent = easier ? action[2] : action[1];
-      document.getElementById("make-smaller").textContent = easier ? "Normal version" : "Make it easier";
-      document.getElementById("action-status").textContent = day.action === "done" ? "Recorded: you chose and completed a move." : day.action === "not-now" ? "Recorded: not now is a valid choice." : "";
+      document.getElementById("make-smaller").textContent = easier ? "Back to original" : "Make it smaller";
+      document.getElementById("action-status").textContent = day.action === "done" ? "Noted. You did it." : day.action === "not-now" ? "Not right now is okay, too." : "";
       ["movement","nourishment","recovery"].forEach(function (key) {
         document.querySelector('[data-anchor="' + key + '"]').checked = day[key];
       });
       var count = Number(day.movement)+Number(day.nourishment)+Number(day.recovery);
       document.getElementById("progress").setAttribute("aria-valuenow",String(count));
       document.getElementById("progress-bar").style.width = String(count/3*100)+"%";
-      document.getElementById("anchor-count").textContent = count+" of 3 foundations noted.";
+      document.getElementById("anchor-count").textContent = count+" of 3 things checked.";
       document.querySelectorAll("[data-feedback]").forEach(function (el) {
         el.setAttribute("aria-pressed", String(el.dataset.feedback===day.feedback));
       });
