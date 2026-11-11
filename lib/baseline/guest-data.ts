@@ -171,6 +171,6 @@ export function mergeGuestCsv(current: GuestData, incoming: GuestEntry[]): Guest
   })
   return validateGuestData({
     ...current,
-    entries: [...current.entries, ...additions].slice(-MAX_GUEST_ENTRIES),
+    entries: [...current.entries, ...additions],
   })
 }
