@@ -41,3 +41,9 @@ The existing canonical PMBaseline user path remains unchanged. This lab tests a 
 ## November 11 — founder feedback / voice revision v0.1.1
 
 Peter found the first screen's health warnings and medical language intrusive. Removed the specific symptom warning from the primary action flow, replaced clinical conditions and action phrasing with plain, friendly everyday language, and kept one small, non-specific help reminder in the About section. Do not hard-code private user health context into product UI. No changes to app data storage, behavior logic, or production paths. Browser-level QA is still required.
+
+## November 11 — QA corrective changes (v0.1.2, pending device validation)
+
+A controlled DOM exercise exposed a state-integrity defect: the original check-in stored only `action: done/not-now` without recording the selected mode/action. After changing modes, the UI continued displaying completion for an unrelated action. Added an action label to the local daily record and display; switching to another option now identifies the earlier completed/skipped choice rather than attributing completion to the current suggestion. Reflections are unavailable until a choice is recorded and are tied to the recorded choice. Added a concise choice/result line to each applicable seven-day history row. Existing local records without labels show a generic earlier-choice fallback. No additional personal data categories or network operations were introduced.
+
+**QA still pending:** authenticated preview-browser navigation, Android install and service worker/offline, visual 320px/390px tablet review, keyboard/screen-reader checks, storage and export behavior in real Chrome, and security advisory triage (Nov 11 Vercel install output: 15 advisories, including 4 critical). Do not claim full release readiness.

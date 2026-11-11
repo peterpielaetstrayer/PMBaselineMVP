@@ -46,6 +46,9 @@
     .progress div{height:100%;width:0%;background:var(--green);transition:width .15s}
     .historyrow{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding:9px 0;gap:12px;font-size:.85rem}
     .historydots{letter-spacing:.13em;color:var(--green);font-size:1.12rem;white-space:nowrap}
+    .historyleft{min-width:0;display:block;flex:1}
+    .historymeta{display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:.73rem;margin-top:1px}
+    .feedback button:disabled{opacity:.55;cursor:not-allowed}
     
     footer{font-size:.78rem;color:var(--muted);margin-top:20px}
     .linkbutton{border:0;background:none;text-decoration:underline;text-underline-offset:3px;color:var(--green);padding:5px;cursor:pointer;font-size:.8rem}
@@ -107,7 +110,7 @@
         <section class="panel" aria-labelledby="reflection-title">
           <div class="eyebrow subdued">04 · Reflect</div>
           <h2 id="reflection-title">Did the move help?</h2>
-          <p class="small subdued">No long journal entry required. An action that didn't fit is useful information.</p>
+          <p class="small subdued" id="reflection-context">After you choose a next step, you can note how it went. No long journal entry needed.</p>
           <div class="feedback" role="group" aria-label="Reflect on your next move">
             <button type="button" data-feedback="helped" aria-pressed="false">Helped</button>
             <button type="button" data-feedback="neutral" aria-pressed="false">No change</button>
@@ -187,6 +190,7 @@
         nourishment: r.nourishment === true,
         recovery: r.recovery === true,
         action: ["done","not-now"].includes(r.action) ? r.action : "",
+        actionLabel: typeof r.actionLabel === "string" ? r.actionLabel.slice(0,100) : "",
         feedback: ["helped","neutral","unhelpful"].includes(r.feedback) ? r.feedback : ""
       };
     }
@@ -205,7 +209,14 @@
       document.getElementById("action-title").textContent = action[0];
       document.getElementById("action-detail").textContent = easier ? action[2] : action[1];
       document.getElementById("make-smaller").textContent = easier ? "Back to original" : "Make it smaller";
-      document.getElementById("action-status").textContent = day.action === "done" ? "Noted. You did it." : day.action === "not-now" ? "Not right now is okay, too." : "";
+      var sameAction = day.actionLabel !== "" && day.actionLabel === action[0];
+      var recordedChoice = day.actionLabel || "an earlier choice";
+      document.getElementById("action-status").textContent = !day.action ? "" :
+        day.action === "done" ? (sameAction ? "Done: " + day.actionLabel : "Earlier today: you completed " + recordedChoice + ".") :
+        (sameAction ? "Not right now is okay, too." : "Earlier today: you passed on " + recordedChoice + ".");
+      document.getElementById("reflection-context").textContent = !day.action ?
+        "After you choose a next step, you can note how it went. No long journal entry needed." :
+        "How did it go? " + (day.actionLabel || "Think about the choice you made earlier.")
       ["movement","nourishment","recovery"].forEach(function (key) {
         document.querySelector('[data-anchor="' + key + '"]').checked = day[key];
       });
@@ -215,6 +226,7 @@
       document.getElementById("anchor-count").textContent = count+" of 3 things checked.";
       document.querySelectorAll("[data-feedback]").forEach(function (el) {
         el.setAttribute("aria-pressed", String(el.dataset.feedback===day.feedback));
+        el.disabled = !day.action;
       });
       var history = document.getElementById("history");
       history.replaceChildren();
@@ -226,7 +238,15 @@
         var n = Number(rec.movement===true)+Number(rec.nourishment===true)+Number(rec.recovery===true);
         if (n>0 || rec.action || rec.feedback) active++;
         var row = document.createElement("div"); row.className="historyrow";
-        var name=document.createElement("span");name.textContent=date.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
+        var name=document.createElement("span");name.className="historyleft";
+        var dayLabel=document.createElement("span");dayLabel.textContent=date.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});name.appendChild(dayLabel);
+        if (rec.action) {
+          var meta=document.createElement("span");meta.className="historymeta";
+          var title = typeof rec.actionLabel === "string" ? rec.actionLabel.slice(0,100) : "a choice";
+          var mood = rec.feedback === "helped" ? " · helped" : rec.feedback === "neutral" ? " · no change" : rec.feedback === "unhelpful" ? " · didn't fit" : "";
+          meta.textContent = (rec.action === "done" ? "Did: " : "Not now: ") + title + mood;
+          name.appendChild(meta);
+        }
         var detail=document.createElement("span");detail.className="historydots";
         detail.textContent = n===0 ? "—" : Array(n+1).join("●") + Array(4-n).join("○");
         detail.setAttribute("aria-label",n+" of 3 foundation anchors");
@@ -239,13 +259,13 @@
     });
     document.getElementById("make-smaller").addEventListener("click",function(){easier=!easier;render();});
     document.getElementById("alternative").addEventListener("click",function(){option=(option+1)%options[mode].length;easier=false;render();});
-    document.getElementById("mark-done").addEventListener("click",function(){var r=getDay();r.action="done";save(r);render();});
-    document.getElementById("not-now").addEventListener("click",function(){var r=getDay();r.action="not-now";save(r);render();});
+    document.getElementById("mark-done").addEventListener("click",function(){var r=getDay();r.action="done";r.actionLabel=options[mode][option%options[mode].length][0];r.feedback="";save(r);render();});
+    document.getElementById("not-now").addEventListener("click",function(){var r=getDay();r.action="not-now";r.actionLabel=options[mode][option%options[mode].length][0];r.feedback="";save(r);render();});
     document.querySelectorAll("[data-anchor]").forEach(function(el){
       el.addEventListener("change",function(){var r=getDay();r[el.dataset.anchor]=el.checked;save(r);render();});
     });
     document.querySelectorAll("[data-feedback]").forEach(function(el){
-      el.addEventListener("click",function(){var r=getDay();r.feedback=r.feedback===el.dataset.feedback?"":el.dataset.feedback;save(r);render();});
+      el.addEventListener("click",function(){var r=getDay();if(!r.action)return;r.feedback=r.feedback===el.dataset.feedback?"":el.dataset.feedback;save(r);render();});
     });
     document.getElementById("export").addEventListener("click",function(){
       var payload=JSON.stringify({format:"pmb-foundation-lab-v01",exportedAt:new Date().toISOString(),days:records},null,2);
