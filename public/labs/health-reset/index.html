@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173c36">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="A local-only personal prototype for testing a right-sized daily baseline.">
+  <link rel="manifest" href="./manifest.json">
+  <title>PMBaseline — 30-day foundation lab</title>
+  <style>
+    :root { color-scheme: light; --ink:#20332e;--muted:#61716b;--bg:#f6f5ef;--paper:#fffdf8;--line:#dfe5db;--green:#275e50;--light:#e8efe9;--gold:#b28d55; }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button,input{font:inherit} button{cursor:pointer}
+    button:focus-visible,input:focus-visible{outline:3px solid #957236;outline-offset:3px}
+    main{max-width:920px;margin:auto;padding:22px 18px 70px}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 28px}
+    .brand{font-size:.85rem;letter-spacing:.12em;font-weight:750}
+    .pill{font-size:.71rem;letter-spacing:.06em;text-transform:uppercase;background:var(--light);padding:6px 10px;border-radius:99px;font-weight:700;color:var(--green)}
+    .hero{padding:26px;background:#173c36;color:#fbfaf6;border-radius:22px;margin-bottom:16px}
+    .hero h1{font:normal 2.3rem/1.13 Georgia,"Times New Roman",serif;letter-spacing:-.035em;margin:6px 0 12px;max-width:610px}
+    .hero p{max-width:620px;color:#e5eee7;margin:0}
+    .eyebrow{text-transform:uppercase;letter-spacing:.13em;font-size:.74rem;font-weight:750}
+    .subdued{color:var(--muted)} .hero .subdued{color:#c7d7ca}
+    .cols{display:grid;grid-template-columns:1.14fr .86fr;gap:16px;align-items:start}
+    .stack{display:grid;gap:16px}
+    .panel{border:1px solid var(--line);background:var(--paper);border-radius:18px;padding:20px;box-shadow:0 3px 13px #213d2710}
+    h2{font:normal 1.5rem/1.2 Georgia,"Times New Roman",serif;margin:4px 0 10px}
+    p{margin:0 0 12px} .small{font-size:.86rem}
+    .mode-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:16px 0}
+    .mode{border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px;text-align:left;color:var(--ink);font-weight:700}
+    .mode[aria-pressed="true"]{border:2px solid var(--green);background:var(--light);padding:11px}
+    .mode span{display:block;font-size:.75rem;font-weight:400;margin-top:2px;color:var(--muted)}
+    .action{background:#eef1e8;border:1px solid #d5dfd1;border-radius:14px;padding:18px;margin:16px 0}
+    .action h3{margin:3px 0 5px;font-size:1.16rem}
+    .buttonrow{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0 0}
+    .button{background:var(--green);border:1px solid var(--green);color:#fff;border-radius:10px;padding:10px 13px;font-size:.89rem;font-weight:700}
+    .button.ghost{background:#fff;color:var(--ink);border-color:#cad5cd}
+    .button.tiny{padding:7px 9px;font-size:.77rem}
+    .status{color:var(--green);font-size:.86rem;font-weight:700;margin:12px 0 0;min-height:1.4em}
+    .anchor{display:flex;gap:13px;align-items:start;padding:12px 0;border-top:1px solid var(--line)}
+    .anchor input{width:22px;height:22px;accent-color:var(--green);margin:3px 0 0;flex-shrink:0}
+    .anchor strong{display:block;font-size:.95rem}.anchor em{font-style:normal;color:var(--muted);font-size:.81rem}
+    .progress{height:9px;width:100%;border-radius:99px;overflow:hidden;background:#e6e8e0;margin:13px 0 3px}
+    .progress div{height:100%;width:0%;background:var(--green);transition:width .15s}
+    .historyrow{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding:9px 0;gap:12px;font-size:.85rem}
+    .historydots{letter-spacing:.13em;color:var(--green);font-size:1.12rem;white-space:nowrap}
+    .note{padding:12px 13px;border-left:3px solid var(--gold);background:#faf1df;border-radius:5px;font-size:.84rem;margin-top:14px}
+    footer{font-size:.78rem;color:var(--muted);margin-top:20px}
+    .linkbutton{border:0;background:none;text-decoration:underline;text-underline-offset:3px;color:var(--green);padding:5px;cursor:pointer;font-size:.8rem}
+    .feedback{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0 0}
+    .feedback button{background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 12px;font-size:.83rem}
+    .feedback button[aria-pressed="true"]{border:2px solid var(--green);background:var(--light);padding:8px 11px}
+    @media(max-width:720px){.cols{grid-template-columns:1fr}.hero{padding:23px}.hero h1{font-size:1.98rem}.panel{padding:18px}.top{margin-bottom:18px}}
+    @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="top"><div class="brand">PMBASELINE <span class="subdued">/ FOUNDATION LAB</span></div><div class="pill">Private-device prototype</div></div>
+    <header class="hero">
+      <div class="eyebrow subdued" id="phase">30-day reset · Nov 11–Dec 10</div>
+      <h1>Make today workable.</h1>
+      <p>Notice what kind of day it is, choose one appropriate move, and learn from what happens. Not a performance scorecard.</p>
+    </header>
+    <div class="cols">
+      <div class="stack">
+        <section class="panel" aria-labelledby="orientation-title">
+          <div class="eyebrow subdued">01 · Orient</div>
+          <h2 id="orientation-title">What kind of day is this?</h2>
+          <p class="small subdued">Pick the support level that fits. This isn't a diagnosis or an automated assessment.</p>
+          <div class="mode-list" role="group" aria-label="Choose your support mode">
+            <button class="mode" data-mode="stabilize" aria-pressed="false">Stabilize<span>Protect essentials</span></button>
+            <button class="mode" data-mode="rebuild" aria-pressed="true">Rebuild<span>Restore momentum</span></button>
+            <button class="mode" data-mode="maintain" aria-pressed="false">Maintain<span>Keep your rhythm</span></button>
+            <button class="mode" data-mode="expand" aria-pressed="false">Expand<span>Grow carefully</span></button>
+          </div>
+          <div class="action" aria-live="polite" aria-atomic="true">
+            <div class="eyebrow subdued">02 · One next move</div>
+            <h3 id="action-title">Take one comfortable step.</h3>
+            <p id="action-detail" class="small">Choose an easy action that supports your baseline.</p>
+          </div>
+          <div class="buttonrow">
+            <button class="button" type="button" id="mark-done">I did this</button>
+            <button class="button ghost" type="button" id="make-smaller">Make it easier</button>
+            <button class="button ghost" type="button" id="alternative">Another option</button>
+            <button class="button ghost" type="button" id="not-now">Not now</button>
+          </div>
+          <p id="action-status" class="status" role="status"></p>
+          <div class="note">Safety first: this prototype is not medical guidance. Do not treat unresolved chest or arm pain as a prompt to exercise. Seek urgent evaluation for active concerning chest symptoms; discuss strenuous training with a clinician if symptoms remain unassessed.</div>
+        </section>
+        <section class="panel" aria-labelledby="anchors-title">
+          <div class="eyebrow subdued">03 · Your daily foundations</div>
+          <h2 id="anchors-title">Three things worth protecting</h2>
+          <p class="small subdued">Check these only if they actually happened today. These track habits, not health outcomes.</p>
+          <div id="anchor-list">
+            <label class="anchor"><input type="checkbox" data-anchor="movement"><span><strong>Comfortable movement, if appropriate</strong><em>A brief, symptom-free walk or other safe movement</em></span></label>
+            <label class="anchor"><input type="checkbox" data-anchor="nourishment"><span><strong>Nourishment</strong><em>A protein-forward meal with produce</em></span></label>
+            <label class="anchor"><input type="checkbox" data-anchor="recovery"><span><strong>Recovery</strong><em>A deliberate wind-down and sleep opportunity</em></span></label>
+          </div>
+          <div class="progress" role="progressbar" aria-label="Today's foundation anchors" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" id="progress"><div id="progress-bar"></div></div>
+          <p class="small subdued" id="anchor-count" role="status">0 of 3 foundations noted.</p>
+        </section>
+      </div>
+      <div class="stack">
+        <section class="panel" aria-labelledby="reflection-title">
+          <div class="eyebrow subdued">04 · Reflect</div>
+          <h2 id="reflection-title">Did the move help?</h2>
+          <p class="small subdued">No long journal entry required. An action that didn't fit is useful information.</p>
+          <div class="feedback" role="group" aria-label="Reflect on your next move">
+            <button type="button" data-feedback="helped" aria-pressed="false">Helped</button>
+            <button type="button" data-feedback="neutral" aria-pressed="false">No change</button>
+            <button type="button" data-feedback="unhelpful" aria-pressed="false">Didn't fit</button>
+          </div>
+        </section>
+        <section class="panel" aria-labelledby="history-title">
+          <div class="eyebrow subdued">05 · Look back</div>
+          <h2 id="history-title">The last seven days</h2>
+          <p class="small subdued">A record of small choices, not a streak to defend.</p>
+          <div id="history" aria-live="polite"></div>
+          <p class="small subdued" id="history-count"></p>
+        </section>
+        <section class="panel" aria-labelledby="privacy-title">
+          <div class="eyebrow subdued">Prototype boundary</div>
+          <h2 id="privacy-title">Your data stays here</h2>
+          <p class="small subdued">This version keeps only anchor completions, action status, and simple feedback in this browser's local storage. No account, AI, WHOOP, or Peter OS sync. No medical details or substance-use entries. Device storage can be lost; this is not a secure medical record.</p>
+          <div class="buttonrow">
+            <button class="button ghost tiny" type="button" id="export">Export this device's log</button>
+            <button class="button ghost tiny" type="button" id="clear">Delete local log</button>
+          </div>
+          <p class="small subdued" id="storage-status" role="status"></p>
+        </section>
+      </div>
+    </div>
+    <footer>Experimental founder experience · 2026. No medical inference, data synchronization, AI personalization, or validated behavior-change claims.</footer>
+  </main>
+  <script>
+  (function () {
+    "use strict";
+    var KEY = "pmb-foundation-lab-2026-11-v01";
+    var TODAY = new Date();
+    var y = TODAY.getFullYear(), m = TODAY.getMonth() + 1, d = TODAY.getDate();
+    var todayKey = [y, String(m).padStart(2,"0"), String(d).padStart(2,"0")].join("-");
+    var records = {};
+    var mode = "rebuild", easier = false, option = 0;
+    var storageEnabled = true;
+    try {
+      var found = localStorage.getItem(KEY);
+      if (found) {
+        var candidate = JSON.parse(found);
+        if (candidate && typeof candidate === "object" && !Array.isArray(candidate)) records = candidate;
+      }
+    } catch (err) {
+      storageEnabled = false;
+      document.getElementById("storage-status").textContent = "Local storage is unavailable in this browser. This session will not be saved.";
+    }
+    var start = new Date(2026,10,11);
+    var currentDay = new Date(y,m-1,d);
+    var dayIndex = Math.round((currentDay-start) / 86400000) + 1;
+    var phaseText = dayIndex < 1 ? "Pilot begins November 11, 2026" : dayIndex > 30 ? "Pilot window ended · review and reset" : "Day " + dayIndex + " of 30 · " + (dayIndex <= 7 ? "Orient" : dayIndex <= 14 ? "Build" : dayIndex <= 21 ? "Develop" : "Review");
+    document.getElementById("phase").textContent = phaseText;
+    var options = {
+      stabilize: [
+        ["Protect essentials", "Make room for food, water, and rest. Reach out for appropriate support when you need it.", "Choose just one essential need to address."],
+        ["Reduce the load", "Postpone a nonessential task and focus on what actually matters today.", "Release one optional expectation."]
+      ],
+      rebuild: [
+        ["A modest reset", "If physically comfortable and medically appropriate, take a brief easy walk. Otherwise choose food or rest.", "Stand up, stretch gently if comfortable, or protect a rest break."],
+        ["Make the next meal easy", "Prepare one protein-forward meal with produce using food already available.", "Choose a simple nutritious food that requires little effort."]
+      ],
+      maintain: [
+        ["Keep your usual rhythm", "Follow a comfortable movement and meal routine without adding extra demands.", "Protect one existing habit."],
+        ["Prepare for tomorrow", "Set out what you need for tomorrow's meal and choose a realistic bedtime.", "Make one small preparation."]
+      ],
+      expand: [
+        ["Progress thoughtfully", "If symptoms are resolved and activity has been medically cleared, consider a small, planned progression; otherwise prioritize recovery.", "Keep today's workload steady."],
+        ["Improve the environment", "Prepare one reusable meal or reduce friction for tomorrow's routine.", "Prepare one item for tomorrow."]
+      ]
+    };
+    function getDay() {
+      var r = records[todayKey];
+      if (!r || typeof r !== "object") r = {};
+      return {
+        movement: r.movement === true,
+        nourishment: r.nourishment === true,
+        recovery: r.recovery === true,
+        action: ["done","not-now"].includes(r.action) ? r.action : "",
+        feedback: ["helped","neutral","unhelpful"].includes(r.feedback) ? r.feedback : ""
+      };
+    }
+    function save(r) {
+      records[todayKey] = r;
+      if (!storageEnabled) return;
+      try { localStorage.setItem(KEY, JSON.stringify(records)); }
+      catch (err) { storageEnabled = false; document.getElementById("storage-status").textContent = "Unable to save locally; export or change browser storage settings."; }
+    }
+    function render() {
+      var day = getDay();
+      document.querySelectorAll("[data-mode]").forEach(function (el) {
+        el.setAttribute("aria-pressed", String(el.dataset.mode === mode));
+      });
+      var action = options[mode][option % options[mode].length];
+      document.getElementById("action-title").textContent = action[0];
+      document.getElementById("action-detail").textContent = easier ? action[2] : action[1];
+      document.getElementById("make-smaller").textContent = easier ? "Normal version" : "Make it easier";
+      document.getElementById("action-status").textContent = day.action === "done" ? "Recorded: you chose and completed a move." : day.action === "not-now" ? "Recorded: not now is a valid choice." : "";
+      ["movement","nourishment","recovery"].forEach(function (key) {
+        document.querySelector('[data-anchor="' + key + '"]').checked = day[key];
+      });
+      var count = Number(day.movement)+Number(day.nourishment)+Number(day.recovery);
+      document.getElementById("progress").setAttribute("aria-valuenow",String(count));
+      document.getElementById("progress-bar").style.width = String(count/3*100)+"%";
+      document.getElementById("anchor-count").textContent = count+" of 3 foundations noted.";
+      document.querySelectorAll("[data-feedback]").forEach(function (el) {
+        el.setAttribute("aria-pressed", String(el.dataset.feedback===day.feedback));
+      });
+      var history = document.getElementById("history");
+      history.replaceChildren();
+      var active = 0;
+      for (var i=6;i>=0;i--) {
+        var date = new Date(y,m-1,d-i);
+        var dateKey = [date.getFullYear(),String(date.getMonth()+1).padStart(2,"0"),String(date.getDate()).padStart(2,"0")].join("-");
+        var rec = records[dateKey] || {};
+        var n = Number(rec.movement===true)+Number(rec.nourishment===true)+Number(rec.recovery===true);
+        if (n>0 || rec.action || rec.feedback) active++;
+        var row = document.createElement("div"); row.className="historyrow";
+        var name=document.createElement("span");name.textContent=date.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
+        var detail=document.createElement("span");detail.className="historydots";
+        detail.textContent = n===0 ? "—" : Array(n+1).join("●") + Array(4-n).join("○");
+        detail.setAttribute("aria-label",n+" of 3 foundation anchors");
+        row.appendChild(name);row.appendChild(detail);history.appendChild(row);
+      }
+      document.getElementById("history-count").textContent = active+" of the last 7 days have a recorded choice.";
+    }
+    document.querySelectorAll("[data-mode]").forEach(function(el) {
+      el.addEventListener("click",function(){mode=el.dataset.mode;option=0;easier=false;render();});
+    });
+    document.getElementById("make-smaller").addEventListener("click",function(){easier=!easier;render();});
+    document.getElementById("alternative").addEventListener("click",function(){option=(option+1)%options[mode].length;easier=false;render();});
+    document.getElementById("mark-done").addEventListener("click",function(){var r=getDay();r.action="done";save(r);render();});
+    document.getElementById("not-now").addEventListener("click",function(){var r=getDay();r.action="not-now";save(r);render();});
+    document.querySelectorAll("[data-anchor]").forEach(function(el){
+      el.addEventListener("change",function(){var r=getDay();r[el.dataset.anchor]=el.checked;save(r);render();});
+    });
+    document.querySelectorAll("[data-feedback]").forEach(function(el){
+      el.addEventListener("click",function(){var r=getDay();r.feedback=r.feedback===el.dataset.feedback?"":el.dataset.feedback;save(r);render();});
+    });
+    document.getElementById("export").addEventListener("click",function(){
+      var payload=JSON.stringify({format:"pmb-foundation-lab-v01",exportedAt:new Date().toISOString(),days:records},null,2);
+      var blob=new Blob([payload],{type:"application/json"});
+      var url=URL.createObjectURL(blob);
+      var link=document.createElement("a");link.href=url;link.download="pmb-foundation-log.json";link.click();
+      setTimeout(function(){URL.revokeObjectURL(url);},1000);
+      document.getElementById("storage-status").textContent="JSON export requested from this browser.";
+    });
+    document.getElementById("clear").addEventListener("click",function(){
+      if (!window.confirm("Delete this prototype's locally saved check-ins on this device?")) return;
+      records={};
+      try{localStorage.removeItem(KEY);}catch(err){}
+      document.getElementById("storage-status").textContent="Local prototype log cleared.";
+      render();
+    });
+    if ("serviceWorker" in navigator && location.protocol==="https:") {
+      window.addEventListener("load",function(){ navigator.serviceWorker.register("./sw.js",{scope:"./"}).catch(function(){}); });
+    }
+    render();
+  })();
+  </script>
+</body>
+</html>
