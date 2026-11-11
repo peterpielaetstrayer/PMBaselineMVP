@@ -4,6 +4,7 @@ export const BASELINE_ROUTES = {
   login: '/login',
   today: '/today',
   history: '/history',
+  myPath: '/my-path',
   checkIn: '/check-in',
   /** Direct-access fallback only. Do not link from canonical routes. */
   legacy: '/legacy',

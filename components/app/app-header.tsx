@@ -13,6 +13,7 @@ interface AppHeaderProps {
 
 const NAV_ITEMS = [
   { href: BASELINE_ROUTES.today, label: "Today" },
+  { href: BASELINE_ROUTES.myPath, label: "My Path" },
   { href: BASELINE_ROUTES.history, label: "History" },
 ] as const
 

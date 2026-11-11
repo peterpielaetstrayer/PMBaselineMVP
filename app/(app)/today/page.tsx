@@ -1,4 +1,6 @@
 import { TodayCommandCenter } from "@/components/baseline/today-command-center"
+import { PersonalPathSnapshot } from "@/components/baseline/personal-path-snapshot"
+import { personalPathFromProfile } from "@/lib/baseline/personal-path"
 import { getTodayWorkspace, resolveTodayGreeting } from "@/lib/server/today-workspace"
 
 export default async function TodayPage() {
@@ -14,6 +16,8 @@ export default async function TodayPage() {
         greeting={greeting}
         latestLoop={workspace?.latestLoop ?? null}
       />
+
+      <PersonalPathSnapshot path={personalPathFromProfile(workspace?.baselineProfile)} />
 
       {(workspace?.profileMissing || workspace?.baselineProfileMissing) && (
         <p className="mt-6 rounded-lg border border-sand-neutral bg-sand-neutral/40 px-4 py-3 text-sm text-navy-text/80">
