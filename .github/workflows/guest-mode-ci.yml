@@ -1,0 +1,31 @@
+name: Guest Mode QA
+
+on:
+  push:
+    branches:
+      - work/integrated-founder-alpha-2026-11
+  pull_request:
+    paths:
+      - "lib/baseline/guest-data.ts"
+      - "components/baseline/guest-workspace.tsx"
+      - "app/guest/**"
+      - "tests/unit/guest-data.test.ts"
+      - ".github/workflows/guest-mode-ci.yml"
+
+jobs:
+  guest-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Guest local data regression tests
+        run: npm test -- tests/unit/guest-data.test.ts
+      - name: Typecheck integrated guest UI
+        run: npm run type-check
